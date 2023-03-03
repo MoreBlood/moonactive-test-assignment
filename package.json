@@ -29,7 +29,7 @@
     "fontfaceobserver": "^2.3.0",
     "gsap": "^3.11.4",
     "pixi-spine": "^3.0.16",
-    "pixi.js": "^6.5.8",
+    "pixi.js": "^7.1.4",
     "regenerator-runtime": "^0.13.10"
   },
   "devDependencies": {
