@@ -11,6 +11,7 @@ import {
   InteractivePointerEvent,
   InteractionData,
 } from "pixi.js";
+import { GameLine } from "./gameField";
 
 export enum TileType {
   tileGreen = "tileGreen",
@@ -43,11 +44,9 @@ export class Tile extends Container {
   private simpleDirection: "v" | "h" | null = null;
   private direction: TileDirections | null = null;
 
-  constructor(
-    readonly type: TileType,
-    private readonly id: string,
-    private readonly gameField: { id: string; tile: TileType }[][],
-  ) {
+  public inProgress = false;
+
+  constructor(readonly type: TileType, readonly id: string, private readonly gameField: GameLine[]) {
     super();
 
     const tileTexture = Loader.shared.resources[type]?.texture;
@@ -88,6 +87,14 @@ export class Tile extends Container {
     this.on("pointerout", this.out);
   }
 
+  destroy(options?: boolean | IDestroyOptions | undefined): void {
+    this.removeListener("pointerdown", this.down);
+    this.removeListener("pointermove", this.move);
+    this.removeListener("pointerup", this.out);
+    this.removeListener("pointerout", this.out);
+    super.destroy(options);
+  }
+
   get posibleDirections() {
     let row = 0;
     let column = 0;
@@ -95,7 +102,7 @@ export class Tile extends Container {
 
     for (let i = 0; i < this.gameField.length; i += 1) {
       for (let u = 0; u < this.gameField[0].length; u += 1) {
-        if (this.gameField[i][u].id === this.id) {
+        if (this.gameField[i][u]?.id === this.id) {
           row = i;
           column = u;
           break;
@@ -116,25 +123,30 @@ export class Tile extends Container {
       res.push(TileDirections.right);
     }
 
-    res = res.filter((dir) => this.getNeighbourTileBy(dir, column, row).tile !== this.type);
+    res = res.filter((dir) => {
+      const neighbour = this.getNeighbourTileBy(dir, column, row);
+      return neighbour && neighbour.tile !== this.type;
+    });
 
     return { directions: res, column, row };
   }
 
-  getNeighbourTileBy(direction: TileDirections, column: number, row: number): { id: string; tile: TileType } {
+  public getNeighbourTileBy(direction: TileDirections, column: number, row: number) {
     switch (direction) {
       case TileDirections.up:
-        return this.gameField[row - 1][column];
+        return this.gameField[row - 1]?.[column];
       case TileDirections.right:
-        return this.gameField[row][column + 1];
+        return this.gameField[row]?.[column + 1];
       case TileDirections.down:
-        return this.gameField[row + 1][column];
+        return this.gameField[row + 1]?.[column];
       case TileDirections.left:
-        return this.gameField[row][column - 1];
+        return this.gameField[row]?.[column - 1];
     }
   }
 
   down = (e: Event & { data: InteractionData }) => {
+    if (this.inProgress) return;
+
     const parentPosition: Point = e.data.getLocalPosition(this.parent);
 
     const localPosition: Point = e.data.getLocalPosition(this);
@@ -152,6 +164,8 @@ export class Tile extends Container {
   };
 
   move = (e: Event & { data: InteractionData }) => {
+    if (this.inProgress) return;
+
     if (this.dragging && this.draggingPosition && this.parentStartPosition) {
       const parentPosition: Point = e.data.getLocalPosition(this.parent);
 
@@ -195,29 +209,32 @@ export class Tile extends Container {
 
       if (this.direction) {
         const { column, row } = this.posibleDirections;
+        const neighbour = this.getNeighbourTileBy(this.direction, column, row);
 
-        if (this.simpleDirection === "h") {
+        if (this.simpleDirection === "h" && neighbour) {
           if (Math.abs(xMovement) > this.width * 0.5) {
-            this.emit("swap-complete", this.id, this.getNeighbourTileBy(this.direction, column, row).id, xMovement, 0);
+            this.emit("swap-complete", this.id, neighbour.id, xMovement, 0);
             this.out();
             return;
           }
 
-          this.emit("swap", this.id, this.getNeighbourTileBy(this.direction, column, row).id, xMovement, 0);
-        } else if (this.simpleDirection === "v") {
+          this.emit("swap", this.id, neighbour.id, xMovement, 0);
+        } else if (this.simpleDirection === "v" && neighbour) {
           if (Math.abs(yMovement) > this.height * 0.5) {
-            this.emit("swap-complete", this.id, this.getNeighbourTileBy(this.direction, column, row).id, xMovement, 0);
+            this.emit("swap-complete", this.id, neighbour.id, xMovement, 0);
             this.out();
             return;
           }
 
-          this.emit("swap", this.id, this.getNeighbourTileBy(this.direction, column, row).id, 0, yMovement);
+          this.emit("swap", this.id, neighbour.id, 0, yMovement);
         }
       }
     }
   };
 
   out = (e?: Event & { data: InteractionData }) => {
+    // if (this.inProgress) return;
+
     if (this.dragging && this.draggingPosition && this.parentStartPosition) {
       if (e) {
         this.position.x = this.parentStartPosition.x - this.draggingPosition.x;
@@ -226,7 +243,11 @@ export class Tile extends Container {
         if (this.direction) {
           const { column, row } = this.posibleDirections;
 
-          this.emit("swap-cancel", this.id, this.getNeighbourTileBy(this.direction, column, row).id);
+          const neighbour = this.getNeighbourTileBy(this.direction, column, row);
+
+          if (neighbour) {
+            this.emit("swap-cancel", this.id, neighbour.id);
+          }
         }
       }
 

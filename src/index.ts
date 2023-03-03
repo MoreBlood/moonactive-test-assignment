@@ -45,7 +45,7 @@ window.onload = async (): Promise<void> => {
 
   app.stage.addChild(bg);
 
-  const gameField = new GameField(app, 5, 5);
+  const gameField = new GameField(app, 7, 7);
 
   app.stage.addChild(gameField);
 
