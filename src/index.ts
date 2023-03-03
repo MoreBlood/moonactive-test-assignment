@@ -5,6 +5,7 @@ import "./style.css";
 import { Tile, TileType } from "./components/tile";
 import { getRandomInt } from "./helpers/random";
 import { GameField } from "./components/gameField";
+import FontFaceObserver from "fontfaceobserver";
 
 declare const VERSION: string;
 
@@ -34,6 +35,7 @@ const app = new Application({
 
 window.onload = async (): Promise<void> => {
   await loadGameAssets();
+  await loadFonts();
 
   document.body.appendChild(app.view);
 
@@ -48,18 +50,14 @@ window.onload = async (): Promise<void> => {
   const gameField = new GameField(app, 7, 7);
 
   app.stage.addChild(gameField);
-
-  const birdFromSprite = getBird();
-  birdFromSprite.anchor.set(0.5, 0.5);
-  birdFromSprite.position.set(gameWidth / 2, 530);
-
-  const spineExample = getSpine();
-  spineExample.position.y = 580;
-
-  // app.stage.addChild(birdFromSprite);
-  // app.stage.addChild(spineExample);
   app.stage.interactive = true;
 };
+
+async function loadFonts() {
+  const observer = new FontFaceObserver("Chango-Regular");
+
+  await observer.load();
+}
 
 async function loadGameAssets(): Promise<void> {
   return new Promise((res, rej) => {

@@ -35,7 +35,9 @@ export class ProgressBar extends Container implements AbstractProgressBar {
   static createRoundedRectangle(width: number, geometry?: GraphicsGeometry, color?: number): Graphics {
     const rect = new Graphics(geometry);
 
+    rect.clear();
     rect.beginFill(color);
+
     rect.drawRoundedRect(0, 0, width, 30, 15);
     rect.endFill();
 
@@ -44,6 +46,7 @@ export class ProgressBar extends Container implements AbstractProgressBar {
 
   setValue(value: number): void {
     this.current = value;
+    this.resize(this.width);
   }
 
   public resize(width: number) {

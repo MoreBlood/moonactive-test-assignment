@@ -3,3 +3,9 @@ body {
   margin: 0 auto;
   background-color: black;
 }
+
+@font-face {
+  font-family: "Chango-Regular";
+  src: url("../assets/fonts/Chango-Regular.ttf");
+  font-display: swap;
+}

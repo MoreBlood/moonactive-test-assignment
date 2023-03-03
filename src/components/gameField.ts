@@ -15,6 +15,10 @@ import { getRandomInt } from "../helpers/random";
 import { ProgressBar } from "./progressBar";
 import gsap from "gsap";
 import { Tile, TileDirections, TileType } from "./tile";
+import sleep from "../helpers/tweenedSleep";
+import { ScoreBar } from "./score";
+import { AbstractScoreBar } from "./abstract/abstractScoresBar";
+import { AbstractProgressBar } from "./abstract/abstractProgressBar";
 
 function broofa() {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
@@ -34,7 +38,9 @@ export class GameField extends Container {
 
   inProgress = false;
 
-  public progressBar: ProgressBar;
+  public progressBar: AbstractProgressBar;
+
+  public score: AbstractScoreBar;
 
   gameField: GameLine[] = [];
 
@@ -56,6 +62,7 @@ export class GameField extends Container {
     let bottom = 0;
 
     const dummyTile = new Tile(TileType.tileGreen, "id", this.gameField as any); // FIX
+    this.score = new ScoreBar(0);
 
     for (let i = 0; i < fieldHeight; i += 1) {
       for (let u = 0; u < fieldWidth; u += 1) {
@@ -69,7 +76,7 @@ export class GameField extends Container {
         const point = new Point();
 
         point.x = u * dummyTile.width + dummyTile.width * 0.1 * u;
-        point.y = i * dummyTile.height + dummyTile.height * 0.1 * i;
+        point.y = this.score.height + i * dummyTile.height + dummyTile.height * 0.1 * i;
 
         this.layout[i][u] = point;
 
@@ -101,15 +108,28 @@ export class GameField extends Container {
       }
     }
 
-    this.progressBar = new ProgressBar(5 * 1000, 2.5 * 1000);
+    this.progressBar = new ProgressBar(10 * 1000, 10 * 1000);
+    const progressBar = this.progressBar;
 
     this.progressBar.position.y = bottom;
+    // this.score.position.y = this.progressBar.height + bottom;
 
     this.addChild(this.progressBar);
+    this.addChild(this.score);
 
     this.resize(app.renderer.width, app.screen.height);
 
-    this.checkLines();
+    this.prerun();
+
+    gsap.to(
+      {},
+      {
+        onUpdate() {
+          progressBar.setValue((1 - this.progress()) * progressBar.max);
+        },
+        duration: 10,
+      },
+    );
 
     app.renderer.addListener("resize", this.resize);
   }
@@ -178,37 +198,44 @@ export class GameField extends Container {
       initiator.tile.startPosition = temp;
     }
 
-    this.checkLines();
+    this.gameCycle();
   };
 
-  swapToEmpty = (initiatorId: string, row: number, column: number) => {
+  fallDown = (initiatorId: string, prerun = false) => {
     const initiator = this.tilesMap.get(initiatorId);
 
-    const empty = this.layout[row][column];
-
-    if (initiator) {
-      this.gameField[row][column] = this.gameField[initiator.row][initiator.column];
-
-      this.gameField[initiator.row][initiator.column] = undefined;
-
-      initiator.row = row;
-      initiator.column = column;
+    if (!initiator) {
+      return false;
     }
 
-    if (initiator && empty) {
-      // initiator.tile.x = empty.x;
-      // initiator.tile.y = empty.y;
-
-      gsap.killTweensOf(initiator.tile, "x,y");
-
-      gsap.to(initiator.tile.position, { x: empty.x, y: empty.y, duration: 0.5 });
-
-      initiator.tile.startPosition = empty;
+    if (initiator.row >= this.gameField.length - 1) {
+      return false;
     }
 
-    if (row + 1 < this.gameField.length && !this.gameField[row + 1][column]) {
-      this.swapToEmpty(initiatorId, row + 1, column);
+    const possibleBottomTile = initiator.tile.getNeighbourTileBy(TileDirections.down, initiator.column, initiator.row);
+
+    if (possibleBottomTile) {
+      return false;
     }
+
+    const emptyPosition = this.layout[initiator.row + 1][initiator.column];
+
+    this.gameField[initiator.row + 1][initiator.column] = this.gameField[initiator.row][initiator.column];
+
+    this.gameField[initiator.row][initiator.column] = undefined;
+
+    initiator.row += 1;
+    initiator.tile.startPosition = emptyPosition;
+
+    gsap.killTweensOf(initiator.tile, "x,y");
+
+    gsap.to(initiator.tile.position, { x: emptyPosition.x, y: emptyPosition.y, duration: prerun ? 0 : 0.25 });
+
+    if (initiator.row + 1 < this.gameField.length && !this.gameField[initiator.row + 1][initiator.column]) {
+      this.fallDown(initiatorId, prerun);
+    }
+
+    return true;
   };
 
   swapCancel = (initiatorId: string, opponentId: string) => {
@@ -230,86 +257,7 @@ export class GameField extends Container {
     }
   };
 
-  private checkLines() {
-    const destroyGroups: GameLine[] = [];
-
-    destroyGroups.push(...this._checkLines("h"));
-    destroyGroups.push(...this._checkLines("v"));
-
-    console.log(destroyGroups);
-
-    // if (destroyGroups.length === 0) {
-    for (let i = 0; i < this.fieldHeight; i += 1) {
-      for (let u = 0; u < this.fieldWidth; u += 1) {
-        const current = this.gameField[i][u];
-
-        if (!current) {
-          this.spawnNew(i, u);
-        }
-      }
-    }
-    // }
-
-    const flat: GameLine = [];
-
-    destroyGroups.forEach((candidate) => {
-      candidate.forEach((el, i) => {
-        if (!el) return;
-
-        const tile = this.tilesMap.get(el.id);
-
-        flat.push(el);
-
-        this.tilesMap.forEach((tile) => {
-          tile.tile.inProgress = true;
-        });
-
-        if (!tile?.tile) return;
-        this.inProgress = true;
-
-        gsap.to(tile.tile, {
-          alpha: 0,
-          duration: 0.5,
-          onComplete: () => {
-            this.tilesMap.forEach((tile) => {
-              tile.tile.inProgress = false;
-            });
-
-            tile.tile.destroy();
-
-            // if (this.gameField[0][tile.column]) {
-            //   this.spawnNew(0 + i, tile.column);
-            // } else {
-
-            // }
-
-            this.inProgress = true;
-          },
-        });
-
-        this.gameField[tile.row][tile.column] = undefined;
-        this.tilesMap.delete(el.id);
-
-        // this.spawnNew(0, tile.column);
-
-        // destroy
-      });
-    });
-
-    if (flat.length === 0) {
-      return;
-    }
-
-    gsap.delayedCall(0.5, () => this.destroyLines());
-  }
-
-  private spawnNew(_row: number, column: number) {
-    let row = _row;
-
-    if (this.gameField[_row][column]) {
-      row += 1;
-    }
-
+  private spawnNew(row: number, column: number, prerun = false) {
     const tiles = Object.keys(TileType);
 
     const type = tiles[getRandomInt(0, tiles.length - 1)] as TileType;
@@ -318,7 +266,7 @@ export class GameField extends Container {
 
     const id = broofa();
 
-    const tile = new Tile(type, broofa(), this.gameField as any); // FIX
+    const tile = new Tile(type, id, this.gameField as any); // FIX
     tile.position.x = el.x;
     tile.position.y = el.y;
 
@@ -330,50 +278,51 @@ export class GameField extends Container {
 
     this.addChild(tile);
 
-    gsap.from(tile, { alpha: 0, duration: 0.5 });
-    gsap.from(tile.position, { y: `-=${tile.height}`, duration: 0.5 });
+    tile.on("swap", this.swap);
+    tile.on("swap-complete", this.swapComplete);
+    tile.on("swap-cancel", this.swapCancel);
+
+    gsap.from(tile, { alpha: 0, duration: prerun ? 0 : 0.25 });
+    gsap.from(tile.position, { y: `-=${tile.height}`, duration: prerun ? 0 : 0.25 });
 
     return tile;
   }
 
-  private destroyLines() {
-    let needToDestroy = false;
+  private checkLines() {
+    const destroyGroups: GameLine[] = [];
 
-    for (let i = this.gameField.length - 1; i >= 0; i -= 1) {
-      for (let u = this.gameField[0].length - 1; u >= 0; u -= 1) {
+    destroyGroups.push(...this._checkLines("h"));
+    destroyGroups.push(...this._checkLines("v"));
+
+    const flat: GameLine = [];
+
+    destroyGroups.forEach((candidate) => {
+      candidate.forEach((el) => {
+        flat.push(el);
+      });
+    });
+
+    return { destroyGroups, flat };
+  }
+
+  private async spawnToEmpty(prerun = false) {
+    let spawning = false;
+    for (let i = 0; i < this.fieldHeight; i += 1) {
+      for (let u = 0; u < this.fieldWidth; u += 1) {
         const current = this.gameField[i][u];
 
-        if (current) {
-          const tile = this.tilesMap.get(current.id);
-
-          if (tile) {
-            const possibleBottomTile = tile.tile.getNeighbourTileBy(TileDirections.down, u, i);
-
-            if (!possibleBottomTile && i + 1 < this.gameField.length) {
-              this.swapToEmpty(current.id, i + 1, u);
-
-              // const spawned = this.spawnNew(0, tile.column);
-
-              // const spawnedBottomTile = spawned.getNeighbourTileBy(TileDirections.down, u, i);
-
-              // if (!spawnedBottomTile) {
-              //   this.swapToEmpty(spawned.id, 1, tile.column);
-              // }
-
-              // gsap.delayedCall(0.5, () => this.spawnNew(0, tile.column));
-
-              needToDestroy = true;
-            }
-          }
+        if (!current) {
+          this.spawnNew(i, u, true);
+          spawning = true;
         }
       }
     }
 
-    if (needToDestroy) {
-      gsap.delayedCall(0.5, () => this.checkLines());
+    if (spawning && !prerun) {
+      await sleep(0.25);
     }
 
-    // this.checkLines();
+    return spawning;
   }
 
   private _checkLines(mode: "h" | "v") {
@@ -445,6 +394,129 @@ export class GameField extends Container {
     return destroyGroups;
   }
 
+  async gravity(prerun = false) {
+    let gravityWorking = false;
+
+    for (let i = this.gameField.length - 1; i >= 0; i -= 1) {
+      for (let u = this.gameField[0].length - 1; u >= 0; u -= 1) {
+        const current = this.gameField[i][u];
+
+        if (current) {
+          const tile = this.tilesMap.get(current.id);
+
+          if (tile) {
+            const canFall = this.fallDown(current.id, prerun);
+
+            if (canFall && !gravityWorking) {
+              gravityWorking = true;
+            }
+          }
+        }
+      }
+    }
+
+    if (gravityWorking && !prerun) {
+      await sleep(0.25);
+    }
+
+    return gravityWorking;
+  }
+
+  private async destroyLines(destroyGroups: GameLine[], prerun = false) {
+    if (destroyGroups.length === 0) {
+      return Promise.resolve();
+    }
+
+    return new Promise<void>((resolve) => {
+      destroyGroups.forEach((candidate) => {
+        candidate.forEach((el) => {
+          if (!el) return;
+
+          const tile = this.tilesMap.get(el.id);
+
+          if (!tile?.tile) return;
+
+          if (prerun) {
+            tile.tile.destroy();
+          } else {
+            gsap.to(tile.tile, {
+              alpha: 0,
+              duration: 0.5,
+              onComplete: () => {
+                tile.tile.destroy();
+
+                this.score.addValue(1);
+
+                resolve();
+              },
+            });
+          }
+
+          this.gameField[tile.row][tile.column] = undefined;
+          this.tilesMap.delete(el.id);
+        });
+      });
+
+      if (prerun) {
+        resolve();
+      }
+    });
+  }
+
+  async gameCycle() {
+    const { destroyGroups, flat } = this.checkLines();
+
+    this.tilesMap.forEach((tile) => {
+      tile.tile.inProgress = true;
+    });
+
+    await this.destroyLines(destroyGroups);
+
+    const gravityWorking = await this.gravity();
+
+    if (gravityWorking) {
+      await this.gameCycle();
+
+      return;
+    }
+
+    const spawnWorking = await this.spawnToEmpty();
+
+    if (spawnWorking) {
+      await this.gameCycle();
+    }
+
+    this.tilesMap.forEach((tile) => {
+      tile.tile.inProgress = false;
+    });
+
+    // if empty
+  }
+
+  async prerun() {
+    const { destroyGroups, flat } = this.checkLines();
+
+    await this.destroyLines(destroyGroups, true);
+
+    const gravityWorking = await this.gravity(true);
+
+    if (gravityWorking) {
+      await this.prerun();
+
+      return;
+    }
+
+    const spawnWorking = await this.spawnToEmpty(true);
+
+    if (spawnWorking) {
+      await this.prerun();
+    } else {
+      this.gameCycle();
+    }
+
+    // if empty
+  }
+
   destroy(options?: boolean | IDestroyOptions | undefined): void {
     super.destroy(options);
 
@@ -456,6 +528,7 @@ export class GameField extends Container {
       this.initialWidth = this.width;
 
       this.progressBar.resize(this.initialWidth);
+      this.score.resize(this.initialWidth);
     }
 
     if (this.initialHeight === 0) {
@@ -467,7 +540,7 @@ export class GameField extends Container {
     if (height > width) {
       scale = width / (this.initialWidth + this.initialWidth * 0.2);
     } else {
-      scale = height / (this.initialHeight + this.initialHeight * 0.2);
+      scale = height / (this.initialHeight + this.initialHeight * 0.1);
     }
 
     this.scale.set(scale, scale);
