@@ -48,8 +48,8 @@ export class ScoreBar extends Container implements AbstractScoreBar {
     // this.score.anchor.x = 0.5;
     // this.score.anchor.y = 0.5;
 
-    this.score.position.x = this.total.width + 100;
-    this.score.position.y = this.total.height / 2 - this.score.height / 2;
+    this.score.position.x = this.total.width + 60;
+    this.score.position.y = this.total.height / 2 - this.score.height / 2 + 5;
 
     this.background = new Graphics();
 

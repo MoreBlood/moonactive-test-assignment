@@ -6,6 +6,12 @@ import { Tile, TileType } from "./components/tile";
 import { getRandomInt } from "./helpers/random";
 import { GameField } from "./components/gameField";
 import FontFaceObserver from "fontfaceobserver";
+import { Modal } from "./components/modal";
+import { BaseModal } from "./components/baseModal";
+
+// TODO
+// [ ] scalable text
+// container with custom bounds class
 
 declare const VERSION: string;
 
@@ -50,6 +56,16 @@ window.onload = async (): Promise<void> => {
   const gameField = new GameField(app, 7, 7);
 
   app.stage.addChild(gameField);
+
+  const modal = new Modal(app, "MERGE ALL SIMILAR ITEMS BEFORE TIME RUNS OUT ", "START");
+  // const modal = new BaseModal(app, "START");
+  modal.on("hidden", () => {
+    gameField.start();
+  });
+
+  app.stage.addChild(modal);
+  modal.show();
+
   app.stage.interactive = true;
 };
 

@@ -109,7 +109,6 @@ export class GameField extends Container {
     }
 
     this.progressBar = new ProgressBar(10 * 1000, 10 * 1000);
-    const progressBar = this.progressBar;
 
     this.progressBar.position.y = bottom;
     // this.score.position.y = this.progressBar.height + bottom;
@@ -121,6 +120,12 @@ export class GameField extends Container {
 
     this.prerun();
 
+    app.renderer.addListener("resize", this.resize);
+  }
+
+  start() {
+    const progressBar = this.progressBar;
+
     gsap.to(
       {},
       {
@@ -130,8 +135,6 @@ export class GameField extends Container {
         duration: 10,
       },
     );
-
-    app.renderer.addListener("resize", this.resize);
   }
 
   swap = (initiatorId: string, opponentId: string, x: number, y: number) => {
@@ -312,7 +315,7 @@ export class GameField extends Container {
         const current = this.gameField[i][u];
 
         if (!current) {
-          this.spawnNew(i, u, true);
+          this.spawnNew(i, u, prerun);
           spawning = true;
         }
       }
