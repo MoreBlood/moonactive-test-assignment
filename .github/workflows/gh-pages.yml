@@ -9,17 +9,37 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        node-version: [18.x]
     permissions:
       contents: write
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
     steps:
+      - uses: actions/checkout@v1
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: npm install
+        run: |
+          npm ci
+      - name: code style check
+        run: |
+          npm run code-style-check
+      - name: build, and test
+        run: |
+          npm run build
+          npm test --if-present
+        env:
+          CI: true
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         # If you're changing the branch from main,
         # also change the `main` in `refs/heads/main`
         # below accordingly.
-        if: ${{ github.ref == 'refs/heads/main' }}
+        if: ${{ github.ref == 'refs/heads/master' }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./public
