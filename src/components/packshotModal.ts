@@ -34,6 +34,7 @@ export class PackshotModal extends BaseModal {
       wordWrap: true,
     });
 
+    // TODO: use pixi rope to curve text
     this.modalText = new Text(text, textStyle);
 
     this.textBackground1 = new Graphics();
@@ -165,7 +166,7 @@ export class PackshotModal extends BaseModal {
     this.closeButton.position.y = this.textBackground1.height;
 
     if (height < width) {
-      this.center.position.y = height / 2 - height * 0.1;
+      this.center.position.y = height / 2 - (this.isFail ? height * 0.1 : 0);
     } else {
       this.center.position.y = height / 2;
     }

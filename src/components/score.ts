@@ -107,7 +107,7 @@ export class ScoreBar extends Container implements AbstractScoreBar {
     this.score.position.x = this.total.width + 5 + this.total.position.x;
     this.score.position.y = this.total.height / 2 - this.score.height / 2;
 
-    const scale = width / this.width / 2;
+    const scale = (width / this.width) * 0.45;
 
     this.scale.set(scale);
     this.total.scaleText(scale);
