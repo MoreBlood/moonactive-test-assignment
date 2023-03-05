@@ -40,6 +40,8 @@ export class GameField extends Container {
 
   public progressBar: AbstractProgressBar;
 
+  public progressTween?: gsap.core.Tween;
+
   public score: AbstractScoreBar;
 
   gameField: GameLine[] = [];
@@ -126,15 +128,23 @@ export class GameField extends Container {
   start() {
     const progressBar = this.progressBar;
 
-    gsap.to(
+    this.progressTween = gsap.to(
       {},
       {
         onUpdate() {
           progressBar.setValue((1 - this.progress()) * progressBar.max);
         },
+        onComplete: () => {
+          this.emit("end-time");
+        },
         duration: 10,
       },
     );
+  }
+
+  restart() {
+    this.prerun();
+    this.start();
   }
 
   swap = (initiatorId: string, opponentId: string, x: number, y: number) => {
@@ -469,6 +479,8 @@ export class GameField extends Container {
   async gameCycle() {
     const { destroyGroups, flat } = this.checkLines();
 
+    this.progressTween?.pause();
+
     this.tilesMap.forEach((tile) => {
       tile.tile.inProgress = true;
     });
@@ -488,6 +500,8 @@ export class GameField extends Container {
     if (spawnWorking) {
       await this.gameCycle();
     }
+
+    this.progressTween?.resume();
 
     this.tilesMap.forEach((tile) => {
       tile.tile.inProgress = false;

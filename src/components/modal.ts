@@ -1,5 +1,5 @@
 import gsap, { Power2 } from "gsap";
-import { Application, Graphics, TextStyle, Text } from "pixi.js";
+import { Application, Graphics, TextStyle, Text, Rectangle } from "pixi.js";
 import { BaseModal } from "./baseModal";
 
 export class Modal extends BaseModal {
@@ -37,6 +37,17 @@ export class Modal extends BaseModal {
     this.modalText.anchor.x = 0.5;
     this.modalText.anchor.y = 0.5;
 
+    this.center.getLocalBounds = function getLocalBounds() {
+      const bounds = new Rectangle();
+      bounds.width = 450;
+      bounds.height = 500;
+
+      return bounds;
+    };
+
+    this.textBackground.alpha = 0;
+    this.modalText.alpha = 0;
+
     this.resize(app.renderer.width, app.screen.height);
   }
 
@@ -59,21 +70,32 @@ export class Modal extends BaseModal {
     super.show();
 
     gsap.from([this.textBackground.position, this.modalText.position], {
-      y: `+=${100}`,
+      y: `-=${100}`,
       duration: 0.5,
       ease: Power2.easeInOut,
     });
-    gsap.from([this.textBackground, this.modalText], { alpha: 0, duration: 0.5, ease: Power2.easeInOut });
+    gsap.fromTo(
+      [this.textBackground, this.modalText],
+      { alpha: 0 },
+      { alpha: 1, duration: 0.5, ease: Power2.easeInOut },
+    );
   }
 
   hide() {
     super.hide();
 
+    const prevTextBackgroundY = this.textBackground.position.y;
+    const prevModalTextY = this.modalText.position.y;
+
     gsap.to([this.textBackground.position, this.modalText.position], {
       ease: Power2.easeInOut,
-      y: `-=${50}`,
+      y: `-=${100}`,
       duration: 0.5,
       delay: 0.1,
+      onComplete: () => {
+        this.textBackground.position.y = prevTextBackgroundY;
+        this.modalText.position.y = prevModalTextY;
+      },
     });
     gsap.to([this.textBackground, this.modalText], { alpha: 0, ease: Power2.easeInOut, duration: 0.5, delay: 0.1 });
   }

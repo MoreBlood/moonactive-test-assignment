@@ -8,6 +8,8 @@ import { GameField } from "./components/gameField";
 import FontFaceObserver from "fontfaceobserver";
 import { Modal } from "./components/modal";
 import { BaseModal } from "./components/baseModal";
+import { PackshotModal } from "./components/packshotModal";
+import gsap from "gsap";
 
 // TODO
 // [ ] scalable text
@@ -15,8 +17,8 @@ import { BaseModal } from "./components/baseModal";
 
 declare const VERSION: string;
 
-const gameWidth = 800;
-const gameHeight = 600;
+// const gameWidth = window.innerWidth * 2;
+// const gameHeight = window.innerHeight * 2;
 
 const assets: { [key: string]: string[] } = {
   tiles: [
@@ -34,9 +36,12 @@ const assets: { [key: string]: string[] } = {
 console.log(`Welcome from pixi-typescript-boilerplate ${VERSION}`);
 
 const app = new Application({
-  backgroundColor: 0xd3d3d3,
-  width: gameWidth,
-  height: gameHeight,
+  // width: gameWidth,
+  // height: gameHeight,
+  // backgroundColor: 0xd3d3d3,
+  antialias: true,
+  autoDensity: true,
+  // powerPreference: "high-performance",
 });
 
 window.onload = async (): Promise<void> => {
@@ -53,17 +58,32 @@ window.onload = async (): Promise<void> => {
 
   app.stage.addChild(bg);
 
-  const gameField = new GameField(app, 7, 7);
+  const gameField = new GameField(app, 5, 5);
 
   app.stage.addChild(gameField);
 
+  const packshot = new PackshotModal(app, "NICE\nWORK", "FAIL!", "TRY AGAIN");
   const modal = new Modal(app, "MERGE ALL SIMILAR ITEMS BEFORE TIME RUNS OUT ", "START");
-  // const modal = new BaseModal(app, "START");
+
   modal.on("hidden", () => {
     gameField.start();
   });
 
+  gameField.on("end-time", () => {
+    if (gameField.score.current > 0) {
+      packshot.changeType(false);
+    } else {
+      packshot.changeType(true);
+    }
+    packshot.show();
+  });
+
+  packshot.on("hidden", () => {
+    gameField.restart();
+  });
+
   app.stage.addChild(modal);
+  app.stage.addChild(packshot);
   modal.show();
 
   app.stage.interactive = true;

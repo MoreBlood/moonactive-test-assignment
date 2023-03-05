@@ -45,6 +45,9 @@ export class BaseModal extends Container implements AbstractModal {
 
     app.renderer.addListener("resize", this.resize.bind(this));
 
+    this.closeButton.alpha = 0;
+    this.closeButton.interactive = false;
+
     this.closeButton.on("clicked", this.hide.bind(this));
   }
 
@@ -56,10 +59,14 @@ export class BaseModal extends Container implements AbstractModal {
     this.closeButton.interactive = false;
     this.background.interactive = true;
 
-    gsap.to(this.background, { alpha: 0.5, ease: Power2.easeInOut });
+    gsap.fromTo(this.background, { alpha: 0 }, { alpha: 0.5, ease: Power2.easeInOut });
 
-    gsap.from(this.closeButton.scale, { x: 0.25, y: 0.25, duration: 0.5, ease: Power2.easeInOut, delay: 0.4 });
-    gsap.from(this.closeButton, { alpha: 0, duration: 0.5, ease: Power2.easeInOut, delay: 0.4 });
+    gsap.fromTo(
+      this.closeButton.scale,
+      { x: 0.25, y: 0.25 },
+      { x: 1, y: 1, duration: 0.5, ease: Power2.easeInOut, delay: 0.4 },
+    );
+    gsap.fromTo(this.closeButton, { alpha: 0 }, { alpha: 1, duration: 0.5, ease: Power2.easeInOut, delay: 0.4 });
 
     gsap.delayedCall(0.9, () => {
       this.closeButton.interactive = true;
@@ -111,10 +118,14 @@ export class BaseModal extends Container implements AbstractModal {
 
     let scale = 0;
 
+    const bounds = this.center.getLocalBounds();
+
+    // console.log(bounds);
+
     if (height > width) {
-      scale = width / (400 + 400 * 0.5);
+      scale = width / (bounds.width + bounds.width * 0.5);
     } else {
-      scale = height / 550;
+      scale = height / bounds.height;
     }
 
     this.closeButton.buttonText.scale.set(1 / scale);
