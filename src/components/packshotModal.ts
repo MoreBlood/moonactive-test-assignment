@@ -40,6 +40,7 @@ export class PackshotModal extends BaseModal {
     this.textBackground2 = new Graphics();
     this.textBackground3 = new Graphics();
 
+    // TODO: dynamic array of circles
     this.center.addChild(this.textBackground1);
     this.center.addChild(this.textBackground2);
     this.center.addChild(this.textBackground3);

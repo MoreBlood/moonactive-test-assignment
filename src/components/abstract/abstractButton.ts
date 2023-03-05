@@ -1,8 +1,9 @@
-import { Container, Text } from "pixi.js";
+import { Container } from "pixi.js";
+import { ScalableText } from "../scalableText";
 
 export abstract class AbstractButton extends Container {
   abstract text: string;
-  abstract buttonText: Text;
+  abstract buttonText: ScalableText;
 
   abstract onClick(): void;
 }

@@ -1,23 +1,10 @@
 import gsap from "gsap";
-import {
-  Application,
-  Container,
-  IDestroyOptions,
-  Texture,
-  TilingSprite,
-  filters,
-  Loader,
-  Sprite,
-  RoundedRectangle,
-  Graphics,
-  GraphicsGeometry,
-  TextStyle,
-  Text,
-} from "pixi.js";
+import { Container, Graphics, GraphicsGeometry, TextStyle } from "pixi.js";
 import { AbstractButton } from "./abstract/abstractButton";
+import { ScalableText } from "./scalableText";
 
 export class Button extends Container implements AbstractButton {
-  public buttonText: Text;
+  public buttonText: ScalableText;
 
   private background: Graphics;
 
@@ -37,11 +24,9 @@ export class Button extends Container implements AbstractButton {
 
     const PADDING = 10;
 
-    this.buttonText = new Text(text, buttonStyle);
+    this.buttonText = new ScalableText(text, buttonStyle);
     this.buttonText.position.x = PADDING * 4;
     this.buttonText.position.y = PADDING / 2;
-    // this.score.anchor.x = 0.5;
-    // this.score.anchor.y = 0.5;
 
     this.background = new Graphics();
 

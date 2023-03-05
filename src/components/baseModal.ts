@@ -1,4 +1,4 @@
-import gsap, { Power2, Power3, Power4 } from "gsap";
+import gsap, { Power2 } from "gsap";
 import { Application, Container, Graphics, Rectangle } from "pixi.js";
 import { AbstractButton } from "./abstract/abstractButton";
 import { AbstractModal } from "./abstract/abstractModal";
@@ -102,25 +102,16 @@ export class BaseModal extends Container implements AbstractModal {
   }
 
   redraw(width: number, height: number) {
-    // this.background.alpha = 0.5;
     this.background = BaseModal.createFill(width, height, this.background, 0x000000);
   }
 
   resize(width: number, height: number) {
-    // const scale = width / (this.width * 2);
-
-    // this.scale.set(scale, scale);
-
     this.center.position.x = width / 2;
     this.center.position.y = height / 2;
-
-    // this.redraw(width, height);
 
     let scale = 0;
 
     const bounds = this.center.getLocalBounds();
-
-    // console.log(bounds);
 
     if (height > width) {
       scale = width / (bounds.width + bounds.width * 0.5);
@@ -128,8 +119,7 @@ export class BaseModal extends Container implements AbstractModal {
       scale = height / bounds.height;
     }
 
-    this.closeButton.buttonText.scale.set(1 / scale);
-    this.closeButton.buttonText.style.fontSize = 50 * scale;
+    this.closeButton.buttonText.scaleText(scale);
 
     this.redraw(width, height);
 

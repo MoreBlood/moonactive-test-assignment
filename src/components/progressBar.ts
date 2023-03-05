@@ -1,16 +1,4 @@
-import {
-  Application,
-  Container,
-  IDestroyOptions,
-  Texture,
-  TilingSprite,
-  filters,
-  Loader,
-  Sprite,
-  RoundedRectangle,
-  Graphics,
-  GraphicsGeometry,
-} from "pixi.js";
+import { Container, Graphics, GraphicsGeometry } from "pixi.js";
 import { AbstractProgressBar } from "./abstract/abstractProgressBar";
 
 export class ProgressBar extends Container implements AbstractProgressBar {

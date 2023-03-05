@@ -1,4 +1,4 @@
-import { Application, Container, IDestroyOptions, Texture, TilingSprite, filters } from "pixi.js";
+import { Application, Container, IDestroyOptions, Texture, TilingSprite } from "pixi.js";
 
 export class HorizontalyTiledBackground extends Container {
   private backgroundTile: TilingSprite;

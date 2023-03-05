@@ -1,16 +1,4 @@
-import {
-  Application,
-  Container,
-  IDestroyOptions,
-  Texture,
-  TilingSprite,
-  filters,
-  Loader,
-  Sprite,
-  Point,
-  InteractivePointerEvent,
-  InteractionData,
-} from "pixi.js";
+import { Container, IDestroyOptions, Loader, Sprite, Point, InteractionData } from "pixi.js";
 import { GameLine } from "./gameField";
 
 export enum TileType {
@@ -70,12 +58,6 @@ export class Tile extends Container {
     this.tile.position.y =
       (this.background.texture.height * this.background.scale.x) / 2 - this.tile.texture.height / 2;
 
-    // this.tile.anchor.x = 0.5;
-    // this.tile.anchor.y = 0.5;
-
-    // this.pivot.x = this.background.texture.width / 2;
-    // this.pivot.y = this.background.texture.height / 2;
-
     this.interactive = true;
 
     this.addChild(this.background);
@@ -85,6 +67,7 @@ export class Tile extends Container {
     this.on("pointermove", this.move);
     this.on("pointerup", this.out);
     this.on("pointerout", this.out);
+    this.on("pointerupoutside", this.out);
   }
 
   destroy(options?: boolean | IDestroyOptions | undefined): void {
@@ -232,32 +215,42 @@ export class Tile extends Container {
     }
   };
 
-  out = (e?: Event & { data: InteractionData }) => {
-    // if (this.inProgress) return;
+  swapCancel() {
+    this.dragging = false;
+    const { column, row } = this.posibleDirections;
 
-    if (this.dragging && this.draggingPosition && this.parentStartPosition) {
-      if (e) {
-        this.position.x = this.parentStartPosition.x - this.draggingPosition.x;
-        this.position.y = this.parentStartPosition.y - this.draggingPosition.y;
+    if (this.direction) {
+      const neighbour = this.getNeighbourTileBy(this.direction, column, row);
 
-        if (this.direction) {
-          const { column, row } = this.posibleDirections;
-
-          const neighbour = this.getNeighbourTileBy(this.direction, column, row);
-
-          if (neighbour) {
-            this.emit("swap-cancel", this.id, neighbour.id);
-          }
-        }
+      if (neighbour && neighbour.tile !== this.type) {
+        this.emit("swap-cancel", this.id, neighbour.id);
       }
-
-      this.dragging = false;
-      this.draggingPosition = null;
-      this.parentStartPosition = null;
-      this.simpleDirection = null;
-      this.zIndex = this.prevZIndex;
-      this.direction = null;
-      this.scale.set(1);
     }
+  }
+
+  out = (e?: Event & { data: InteractionData }) => {
+    if (this.dragging && this.startPosition) {
+      if (e && this.direction) {
+        this.swapCancel();
+      } else if (e) {
+        this.position.x = this.startPosition.x;
+        this.position.y = this.startPosition.y;
+      }
+    } else if (this.startPosition) {
+      this.position.x = this.startPosition.x;
+      this.position.y = this.startPosition.y;
+    }
+
+    this.reset();
   };
+
+  reset() {
+    this.dragging = false;
+    this.draggingPosition = null;
+    this.parentStartPosition = null;
+    this.simpleDirection = null;
+    this.zIndex = this.prevZIndex;
+    this.direction = null;
+    this.scale.set(1);
+  }
 }

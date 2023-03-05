@@ -1,9 +1,10 @@
 import gsap, { Power2 } from "gsap";
 import { Application, Graphics, TextStyle, Text, Rectangle } from "pixi.js";
 import { BaseModal } from "./baseModal";
+import { ScalableText } from "./scalableText";
 
 export class Modal extends BaseModal {
-  private modalText: Text;
+  private modalText: ScalableText;
 
   private textBackground: Graphics;
 
@@ -23,7 +24,7 @@ export class Modal extends BaseModal {
       wordWrap: true,
     });
 
-    this.modalText = new Text(text, textStyle);
+    this.modalText = new ScalableText(text, textStyle);
 
     this.textBackground = new Graphics();
 
@@ -119,9 +120,7 @@ export class Modal extends BaseModal {
   resize(width: number, height: number) {
     const scale = super.resize(width, height);
 
-    this.modalText.scale.set(1 / scale);
-    this.modalText.style.wordWrapWidth = 500 * scale;
-    this.modalText.style.fontSize = 26 * scale;
+    this.modalText.scaleText(scale);
 
     this.closeButton.position.y = this.textBackground.height / 2 + 30;
 
