@@ -1,4 +1,4 @@
-import { Application, Container, Point } from "pixi.js";
+import { Application, Container, Point } from "../pixi";
 import { getRandomInt } from "../helpers/random";
 import gsap from "gsap";
 import { Tile, TileDirections, TileType } from "./tile";

@@ -1,4 +1,4 @@
-import { Container, Graphics, TextStyle } from "pixi.js";
+import { Container, Graphics, TextStyle } from "../pixi";
 import { AbstractScoreBar } from "./abstract/abstractScoresBar";
 import { ScalableText } from "./scalableText";
 

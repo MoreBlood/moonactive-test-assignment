@@ -1,5 +1,5 @@
 import gsap from "gsap";
-import { Application, Container } from "pixi.js";
+import { Application, Container } from "../pixi";
 import { AbstractProgressBar } from "./abstract/abstractProgressBar";
 import { AbstractScoreBar } from "./abstract/abstractScoresBar";
 import { GameField } from "./gameField";

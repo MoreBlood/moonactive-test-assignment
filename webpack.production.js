@@ -4,9 +4,13 @@ const path = require("path");
 
 const fs = require("fs");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const ESLintPlugin = require("eslint-webpack-plugin");
+const HtmlWebpackInlineSourcePlugin = require("html-webpack-inline-source-plugin");
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, "package.json"), "utf-8"));
 
@@ -34,6 +38,7 @@ module.exports = (env) => {
     },
 
     output: {
+      publicPath: "/",
       path: path.resolve(__dirname, "dist"),
       filename: "game.[contenthash].js",
     },
@@ -57,11 +62,14 @@ module.exports = (env) => {
       new MiniCssExtractPlugin({
         filename: "[name].[contenthash].css",
       }),
-
+      new CleanWebpackPlugin({
+        protectWebpackAssets: false,
+        cleanAfterEveryBuildPatterns: ["**/*.js", "**/*.css", "**/*.txt"],
+      }),
+      new HtmlWebpackInlineSourcePlugin(HtmlWebpackPlugin),
       new webpack.DefinePlugin({
         VERSION: JSON.stringify(pkg.version + "r"),
       }),
-
       new ESLintPlugin({
         emitError: true,
         emitWarning: true,
@@ -70,6 +78,7 @@ module.exports = (env) => {
       }),
 
       new webpack.ProgressPlugin(),
+      // new BundleAnalyzerPlugin(),
     ],
   };
 };

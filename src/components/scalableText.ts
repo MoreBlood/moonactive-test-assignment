@@ -1,4 +1,4 @@
-import { TextStyle, Text, ITextStyle } from "pixi.js";
+import { TextStyle, Text, ITextStyle } from "../pixi";
 
 export class ScalableText extends Text {
   private originalStyle: Partial<ITextStyle>;

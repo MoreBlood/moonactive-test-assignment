@@ -35,6 +35,6 @@ canvas {
 
 @font-face {
   font-family: "Chango-Regular";
-  src: url("../assets/fonts/Chango-Regular.ttf");
+  src: url("../assets/fonts/Chango-Regular.woff2") format("woff2");
   font-display: swap;
 }

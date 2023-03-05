@@ -1,5 +1,5 @@
 import gsap from "gsap";
-import { Container, Graphics, GraphicsGeometry, TextStyle } from "pixi.js";
+import { Container, Graphics, GraphicsGeometry, TextStyle } from "../pixi";
 import { AbstractButton } from "./abstract/abstractButton";
 import { ScalableText } from "./scalableText";
 

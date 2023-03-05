@@ -6,12 +6,13 @@ const merge = require("webpack-merge").merge;
 
 // plugins
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const HtmlWebpackInlineSourcePlugin = require("html-webpack-inline-source-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 
 module.exports = (env) => {
   const config = {
-    entry: "./src/index.ts",
+    entry: { game: ["./src/index.ts", "./src/style.css"] },
 
     resolve: {
       extensions: [".ts", ".tsx", ".js", ".json"],
@@ -32,6 +33,10 @@ module.exports = (env) => {
             "css-loader",
           ],
         },
+        {
+          test: /\.(png|jpg|ttf|gif|woff(2)?)(\?[a-z0-9=&.]+)?$/,
+          type: "asset/inline",
+        },
       ],
     },
     optimization: {
@@ -41,26 +46,8 @@ module.exports = (env) => {
     },
 
     plugins: [
-      new HtmlWebpackPlugin(),
-      new CopyPlugin({
-        patterns: [
-          {
-            from: "assets/**",
-
-            // if there are nested subdirectories , keep the hierarchy
-            to({ context, absoluteFilename }) {
-              const assetsPath = path.resolve(__dirname, "assets");
-
-              if (!absoluteFilename) {
-                throw Error();
-              }
-
-              const endPath = absoluteFilename.slice(assetsPath.length);
-
-              return Promise.resolve(`assets/${endPath}`);
-            },
-          },
-        ],
+      new HtmlWebpackPlugin({
+        inlineSource: env.mode === "production" ? ".(js|css)$" : undefined, // inlines js in html
       }),
     ],
   };

@@ -1,5 +1,5 @@
 import gsap, { Power2 } from "gsap";
-import { Application, Graphics, TextStyle, Text, Rectangle } from "pixi.js";
+import { Application, Graphics, TextStyle, Text, Rectangle } from "../pixi";
 import { BaseModal } from "./baseModal";
 import { ScalableText } from "./scalableText";
 

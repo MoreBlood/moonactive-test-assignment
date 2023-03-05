@@ -1,10 +1,17 @@
-import "./style.css";
-import { Application, Loader } from "pixi.js";
+import { Application, Loader, Assets, LoadAsset } from "./pixi";
 import { HorizontalyTiledBackground } from "./components/background";
 import FontFaceObserver from "fontfaceobserver";
 import { Modal } from "./components/modal";
 import { PackshotModal } from "./components/packshotModal";
 import { Layout } from "./components/layout";
+import BackTile from "../assets/tiles/BackTile.png";
+import tileBlue from "../assets/tiles/tileBlue.png";
+import tileGreen from "../assets/tiles/tileGreen.png";
+import tileOrange from "../assets/tiles/tileOrange.png";
+import tilePink from "../assets/tiles/tilePink.png";
+import tileRed from "../assets/tiles/tileRed.png";
+import tileYellow from "../assets/tiles/tileYellow.png";
+import forest from "../assets/bg/forest.jpg";
 
 // TODO
 // [x] scalable text
@@ -15,18 +22,7 @@ declare const VERSION: string;
 const gameWidth = window.innerWidth;
 const gameHeight = window.innerHeight;
 
-const assets: { [key: string]: string[] } = {
-  tiles: [
-    "BackTile.png",
-    "tileBlue.png",
-    "tileGreen.png",
-    "tileOrange.png",
-    "tilePink.png",
-    "tileRed.png",
-    "tileYellow.png",
-  ],
-  bg: ["forest.jpg"],
-};
+const assets = { BackTile, tileBlue, tileGreen, tileOrange, tilePink, tileRed, tileYellow, forest };
 
 const app = new Application({
   width: gameWidth,
@@ -45,7 +41,7 @@ window.onload = async (): Promise<void> => {
 
   resizeCanvas();
 
-  const forestTexture = Loader.shared.resources["forest"].texture;
+  const forestTexture = Assets.cache.get("forest");
 
   if (forestTexture) {
     const bg = new HorizontalyTiledBackground(app, forestTexture);
@@ -89,29 +85,7 @@ async function loadFonts() {
 }
 
 async function loadGameAssets(): Promise<void> {
-  return new Promise((res, rej) => {
-    const loader = Loader.shared;
-
-    Object.keys(assets).forEach((group) => {
-      const assetsGroup = assets[group];
-
-      assetsGroup.forEach((asset) => {
-        const [name] = asset.split(".");
-
-        loader.add(name, `./assets/${group}/${asset}`);
-      });
-    });
-
-    loader.onComplete.once(() => {
-      res();
-    });
-
-    loader.onError.once(() => {
-      rej();
-    });
-
-    loader.load();
-  });
+  await Assets.load(Object.keys(assets).map((key): LoadAsset => ({ alias: [key], src: (assets as any)[key] })));
 }
 
 function resizeCanvas(): void {

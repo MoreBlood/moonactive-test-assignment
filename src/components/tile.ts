@@ -1,4 +1,4 @@
-import { Container, IDestroyOptions, Loader, Sprite, Point, InteractionData } from "pixi.js";
+import { Container, IDestroyOptions, Sprite, Point, InteractionData, Assets } from "../pixi";
 import { GameLine } from "./gameField";
 
 export enum TileType {
@@ -37,8 +37,8 @@ export class Tile extends Container {
   constructor(readonly type: TileType, readonly id: string, private readonly gameField: GameLine[]) {
     super();
 
-    const tileTexture = Loader.shared.resources[type]?.texture;
-    const backgroundTexture = Loader.shared.resources["BackTile"]?.texture;
+    const tileTexture = Assets.cache.get(type);
+    const backgroundTexture = Assets.cache.get("BackTile");
 
     if (!tileTexture) {
       throw new Error("tile not found");

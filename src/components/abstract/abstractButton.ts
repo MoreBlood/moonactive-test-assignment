@@ -1,4 +1,4 @@
-import { Container } from "pixi.js";
+import { Container } from "../../pixi";
 import { ScalableText } from "../scalableText";
 
 export abstract class AbstractButton extends Container {

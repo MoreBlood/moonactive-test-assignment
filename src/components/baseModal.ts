@@ -1,5 +1,5 @@
 import gsap, { Power2 } from "gsap";
-import { Application, Container, Graphics, Rectangle } from "pixi.js";
+import { Application, Container, Graphics, Rectangle } from "../pixi";
 import { AbstractButton } from "./abstract/abstractButton";
 import { AbstractModal } from "./abstract/abstractModal";
 import { Button } from "./button";
