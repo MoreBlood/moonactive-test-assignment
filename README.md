@@ -1,8 +1,13 @@
-[![Netlify Status](https://api.netlify.com/api/v1/badges/14e7ef42-5c90-44c8-a7ec-0b6e20c59735/deploy-status)](https://pixi-typescript-boilerplate.netlify.com) ![Windows build](https://github.com/jkanchelov/pixi-typescript-boilerplate/workflows/Windows%20build/badge.svg?branch=master) ![Linux build](https://github.com/jkanchelov/pixi-typescript-boilerplate/workflows/Linux%20build/badge.svg) ![MacOs build](https://github.com/jkanchelov/pixi-typescript-boilerplate/workflows/MacOs%20build/badge.svg)
+![Windows build](https://github.com/MoreBlood/moonactive-test-assignment/workflows/Windows%20build/badge.svg?branch=master) ![Linux build](https://github.com/MoreBlood/moonactive-test-assignment/workflows/Linux%20build/badge.svg) ![MacOs build](https://github.com/MoreBlood/moonactive-test-assignment/workflows/MacOs%20build/badge.svg) ![GithubPages build](https://github.com/MoreBlood/moonactive-test-assignment/workflows/GitHub%20Pages/badge.svg)
 
-# pixi-typescript-boilerplate
+# Moonactive test assigment based on pixi-typescript-boilerplate
 
-## Beginner friendly template for pixi.js with [Webpack](https://webpack.js.org/)
+- [Credits to yordan-kanchelov](https://github.com/yordan-kanchelov/pixi-typescript-boilerplate)
+- Beginner friendly template for pixi.js with [Webpack](https://webpack.js.org/)
+
+## Demo
+
+[![preview](assets/preview.png)](https://moreblood.github.io/moonactive-test-assignment/)
 
 ## Highlights
 
@@ -13,14 +18,6 @@
 - 📝 - Consistent code style using Prettier and Eslint
 - 📝 - Unit test support with [Jest](https://jestjs.io/), generating code coverage.
 
-## Usage
-
-### Click on the green button "Use this template" on top of the repo or <br> <br> Simply copy paste this and start coding
-
-`git clone --depth=1 --branch=master https://github.com/yordan-kanchelov/pixi-typescript-boilerplate`
-
-`rm -r -force ./pixi-typescript-boilerplate/.git`
-
 ## Commands
 
 - `npm run build` - starts build procedure
@@ -30,3 +27,8 @@
 - `npm run code-style-check` - run's eslint and prettier check on your code
 
 For vscode users - ctrl ( or ⌘ ) + shift + b will run the watch build as its set as default vscode task
+
+## Actions
+
+- Addded publish to Github Pages action
+- Build available at [moreblood.github.io/moonactive-test-assignment](https://moreblood.github.io/moonactive-test-assignment/)
