@@ -15,16 +15,13 @@ export class BaseModal extends Container implements AbstractModal {
     super();
 
     this.closeButton = new Button(closeText);
-
     this.background = new Graphics();
+
     this.background.alpha = 0;
+
     this.center = new Container();
-
-    this.addChild(this.background);
-
-    this.addChild(this.center);
-
-    this.center.addChild(this.closeButton);
+    this.center.pivot.x = 200;
+    this.center.pivot.y = 100;
 
     this.center.getLocalBounds = function getLocalBounds() {
       const bounds = new Rectangle();
@@ -34,10 +31,13 @@ export class BaseModal extends Container implements AbstractModal {
       return bounds;
     };
 
-    this.center.pivot.x = 200;
-    this.center.pivot.y = 100;
+    this.addChild(this.background);
+    this.addChild(this.center);
+    this.center.addChild(this.closeButton);
 
     this.closeButton.position.x = this.center.width / 2;
+    this.closeButton.alpha = 0;
+    this.closeButton.interactive = false;
 
     if (!this.isExtended) {
       this.resize(app.renderer.width, app.screen.height);
@@ -45,13 +45,11 @@ export class BaseModal extends Container implements AbstractModal {
 
     app.renderer.addListener("resize", this.resize.bind(this));
 
-    this.closeButton.alpha = 0;
-    this.closeButton.interactive = false;
-
     this.closeButton.on("clicked", this.hide.bind(this));
   }
 
   get isExtended() {
+    // when class is extended, we don't need to call some logic, for example resize
     return Object.getPrototypeOf(this) !== BaseModal.prototype;
   }
 
@@ -91,8 +89,6 @@ export class BaseModal extends Container implements AbstractModal {
   }
 
   static createFill(width: number, height: number, graphics: Graphics, color?: number): Graphics {
-    // const graphics = new Graphics(geometry);
-
     graphics.clear();
     graphics.beginFill(color);
     graphics.drawRoundedRect(0, 0, width, height, 0);

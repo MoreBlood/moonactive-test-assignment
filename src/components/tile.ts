@@ -18,18 +18,23 @@ export enum TileDirections {
 
 export class Tile extends Container {
   private tile: Sprite;
+
   private background: Sprite;
 
   private dragging = false;
+
   private draggingPosition: Point | null = null;
+
   private parentStartPosition: Point | null = null;
 
   public startPosition: Point | null = null;
+
   private prevZIndex = 0;
 
   private threshold = 30;
 
   private simpleDirection: "v" | "h" | null = null;
+
   private direction: TileDirections | null = null;
 
   public inProgress = false;
@@ -96,18 +101,22 @@ export class Tile extends Container {
     if (row !== 0) {
       res.push(TileDirections.up);
     }
+
     if (row !== this.gameField.length - 1) {
       res.push(TileDirections.down);
     }
+
     if (column !== 0) {
       res.push(TileDirections.left);
     }
+
     if (column !== this.gameField[0].length - 1) {
       res.push(TileDirections.right);
     }
 
     res = res.filter((dir) => {
       const neighbour = this.getNeighbourTileBy(dir, column, row);
+
       return neighbour && neighbour.tile !== this.type;
     });
 
@@ -166,6 +175,7 @@ export class Tile extends Container {
           return;
         }
       }
+
       if (this.simpleDirection === "v") {
         if (directions.includes(TileDirections.up) && yMovement > 0) {
           this.direction = TileDirections.up;
@@ -198,6 +208,7 @@ export class Tile extends Container {
           if (Math.abs(xMovement) > this.width * 0.5) {
             this.emit("swap-complete", this.id, neighbour.id, xMovement, 0);
             this.out();
+
             return;
           }
 
@@ -206,6 +217,7 @@ export class Tile extends Container {
           if (Math.abs(yMovement) > this.height * 0.5) {
             this.emit("swap-complete", this.id, neighbour.id, xMovement, 0);
             this.out();
+
             return;
           }
 

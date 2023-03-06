@@ -1,5 +1,42 @@
 {
   "parser": "@typescript-eslint/parser",
   "plugins": ["@typescript-eslint"],
-  "extends": ["prettier", "plugin:@typescript-eslint/recommended", "plugin:prettier/recommended"]
+  "extends": ["prettier", "plugin:@typescript-eslint/recommended", "plugin:prettier/recommended"],
+  "rules": {
+    "@typescript-eslint/interface-name-prefix": "off",
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-empty-function": 1,
+    "prefer-const": 2,
+    "prefer-template": 2,
+    "eqeqeq": 2,
+    "lines-between-class-members": 2,
+    "computed-property-spacing": 2,
+    "padding-line-between-statements": [
+      "error",
+      {
+        "blankLine": "always",
+        "prev": "*",
+        "next": ["return", "throw"]
+      },
+      {
+        "blankLine": "always",
+        "prev": "*",
+        "next": ["block", "block-like", "class", "export"]
+      },
+      {
+        "blankLine": "always",
+        "prev": ["block", "block-like", "class", "export"],
+        "next": "*"
+      }
+    ],
+    "prettier/prettier": [
+      "error",
+      {
+        "endOfLine": "auto"
+      }
+    ],
+    "vue/multi-word-component-names": "off"
+  }
 }

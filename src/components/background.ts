@@ -26,6 +26,7 @@ export class HorizontalyTiledBackground extends Container {
   }
 
   private resize = (width: number, height: number) => {
+    // this will position it in center and scale verticaly to fit viewport
     this.backgroundTile.position.x = width / 2;
     this.backgroundTile.position.y = height / 2;
 

@@ -8,6 +8,7 @@ import { ScoreBar } from "./score";
 
 export class Layout extends Container {
   initialWidth = 0;
+
   initialHeight = 0;
 
   public progressBar: AbstractProgressBar;
@@ -28,7 +29,7 @@ export class Layout extends Container {
 
     this.progressBar = new ProgressBar(10, 10);
 
-    this.gameField = new GameField(app, 5, 5);
+    this.gameField = new GameField(5, 5);
 
     this.addChild(this.score);
     this.addChild(this.gameField);

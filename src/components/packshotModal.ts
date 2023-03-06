@@ -6,7 +6,9 @@ export class PackshotModal extends BaseModal {
   private modalText: Text;
 
   private textBackground1: Graphics;
+
   private textBackground2: Graphics;
+
   private textBackground3: Graphics;
 
   private isFail = false;
@@ -34,14 +36,14 @@ export class PackshotModal extends BaseModal {
       wordWrap: true,
     });
 
-    // TODO: use pixi rope to curve text
+    // TODO use pixi rope to curve text
     this.modalText = new Text(text, textStyle);
 
     this.textBackground1 = new Graphics();
     this.textBackground2 = new Graphics();
     this.textBackground3 = new Graphics();
 
-    // TODO: dynamic array of circles
+    // TODO dynamic array of circles
     this.center.addChild(this.textBackground1);
     this.center.addChild(this.textBackground2);
     this.center.addChild(this.textBackground3);

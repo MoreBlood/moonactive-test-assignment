@@ -1,7 +1,7 @@
 {
-  "name": "pixi-typescript-boilerplate",
+  "name": "moonactive-test-assigment",
   "version": "1.0.0",
-  "description": "pixi.js typescript boilerplate webpack",
+  "description": "pixi.js moonactive test assigment",
   "browserslist": "> 0.25%, not dead",
   "scripts": {
     "webpack": "webpack",
@@ -19,10 +19,11 @@
     "prettier:format": "npm run prettier -- --write src/**/*.ts",
     "prettier:check": "npm run prettier -- -c ./src/**/*.ts",
     "lint-check": "npx eslint ./src/**/*.ts",
+    "lint-fix": "npx eslint --quiet --ignore-path .eslintignore --ext .ts . --fix",
     "code-style-check": "npm run lint-check && npm run prettier:check",
     "prepare": "husky install"
   },
-  "author": "jkanchelov",
+  "author": "MoreBlood",
   "license": "MIT",
   "dependencies": {
     "@pixi/app": "^6.5.8",

@@ -43,34 +43,37 @@ window.onload = async (): Promise<void> => {
 
   const forestTexture = Assets.cache.get("forest");
 
-  if (forestTexture) {
-    const bg = new HorizontalyTiledBackground(app, forestTexture);
-    app.stage.addChild(bg);
-  }
+  const bg = new HorizontalyTiledBackground(app, forestTexture);
+  app.stage.addChild(bg);
 
+  // layout has gamefiled, total score and progress bar
   const layout = new Layout(app);
   const packshot = new PackshotModal(app, "NICE\nWORK", "FAIL!", "TRY AGAIN");
   const modal = new Modal(app, "MERGE ALL SIMILAR ITEMS BEFORE TIME RUNS OUT ", "START");
 
+  app.stage.addChild(layout);
+  app.stage.addChild(modal);
+  app.stage.addChild(packshot);
+
   modal.show();
 
+  // on time limit
   layout.on("end-time", () => {
     if (layout.score.current > 0) {
       packshot.changeType(false);
     } else {
       packshot.changeType(true);
     }
+
     packshot.show();
   });
 
-  app.stage.addChild(layout);
-  app.stage.addChild(modal);
-  app.stage.addChild(packshot);
-
+  // on intro modal hidden
   modal.on("hidden", () => {
     layout.start();
   });
 
+  // on restart
   packshot.on("hidden", () => {
     layout.restart();
   });
@@ -85,7 +88,9 @@ async function loadFonts() {
 }
 
 async function loadGameAssets(): Promise<void> {
-  await Assets.load(Object.keys(assets).map((key): LoadAsset => ({ alias: [key], src: (assets as any)[key] })));
+  const keys = Object.keys(assets) as (keyof typeof assets)[];
+
+  await Assets.load(keys.map((key): LoadAsset => ({ alias: [key], src: assets[key] })));
 }
 
 function resizeCanvas(): void {

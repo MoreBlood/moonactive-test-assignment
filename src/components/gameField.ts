@@ -1,4 +1,4 @@
-import { Application, Container, Point } from "../pixi";
+import { Container, Point } from "../pixi";
 import { getRandomInt } from "../helpers/random";
 import gsap from "gsap";
 import { Tile, TileDirections, TileType } from "./tile";
@@ -9,6 +9,7 @@ export type GameLine = ({ id: string; tile: TileType; position: Point } | undefi
 
 export class GameField extends Container {
   initialWidth = 0;
+
   initialHeight = 0;
 
   inProgress = false;
@@ -19,18 +20,14 @@ export class GameField extends Container {
 
   private tilesMap = new Map<string, { tile: Tile; row: number; column: number }>();
 
-  constructor(
-    private readonly app: Pick<Application, "renderer" | "screen">,
-    private readonly fieldWidth = 4,
-    private readonly fieldHeight = 4,
-  ) {
+  constructor(private readonly fieldWidth = 4, private readonly fieldHeight = 4, private inArow = 3) {
     super();
 
     const tiles = Object.keys(TileType);
 
     this.sortableChildren = true;
 
-    const dummyTile = new Tile(TileType.tileGreen, "id", this.gameField as any); // FIX
+    const dummyTile = new Tile(TileType.tileGreen, "id", this.gameField);
 
     for (let i = 0; i < fieldHeight; i += 1) {
       for (let u = 0; u < fieldWidth; u += 1) {
@@ -56,7 +53,7 @@ export class GameField extends Container {
       for (let u = 0; u < fieldWidth; u += 1) {
         const el = this.gameField[i][u]!;
 
-        const tile = new Tile(el.tile, el.id, this.gameField); // FIX
+        const tile = new Tile(el.tile, el.id, this.gameField);
         tile.position.x = el.position.x;
         tile.position.y = el.position.y;
 
@@ -75,14 +72,17 @@ export class GameField extends Container {
     this.prerun();
   }
 
-  releaseTiles() {
+  /**
+   * Call this method when gamefield is out of focus
+   */
+  public releaseTiles() {
     this.tilesMap.forEach((el) => {
       el.tile.swapCancel();
       el.tile.out();
     });
   }
 
-  swap = (initiatorId: string, opponentId: string, x: number, y: number) => {
+  private swap = (initiatorId: string, opponentId: string, x: number, y: number) => {
     const opponent = this.tilesMap.get(opponentId);
 
     if (opponent?.tile && opponent.tile?.startPosition) {
@@ -96,7 +96,7 @@ export class GameField extends Container {
     }
   };
 
-  swapComplete = (initiatorId: string, opponentId: string) => {
+  private swapComplete = (initiatorId: string, opponentId: string) => {
     const opponent = this.tilesMap.get(opponentId);
     const initiator = this.tilesMap.get(initiatorId);
 
@@ -138,7 +138,7 @@ export class GameField extends Container {
     this.gameCycle();
   };
 
-  fallDown = (initiatorId: string, prerun = false) => {
+  private fallDown = (initiatorId: string, prerun = false) => {
     const initiator = this.tilesMap.get(initiatorId);
 
     if (!initiator) {
@@ -175,7 +175,7 @@ export class GameField extends Container {
     return true;
   };
 
-  swapCancel = (initiatorId: string, opponentId: string) => {
+  private swapCancel = (initiatorId: string, opponentId: string) => {
     const opponent = this.tilesMap.get(opponentId);
     const initiator = this.tilesMap.get(initiatorId);
 
@@ -188,6 +188,14 @@ export class GameField extends Container {
     }
   };
 
+  /**
+   * Spanws new tile and attaches listeners
+   *
+   * @private
+   * @param {number} row
+   * @param {number} column
+   * @param {boolean} [prerun=false] if true, runs without animation and delays
+   */
   private spawnNew(row: number, column: number, prerun = false) {
     const tiles = Object.keys(TileType);
 
@@ -219,6 +227,11 @@ export class GameField extends Container {
     return tile;
   }
 
+  /**
+   * Checks lines horizontaly **and** verticaly
+   *
+   * @private
+   */
   private checkLines() {
     const destroyGroups: GameLine[] = [];
 
@@ -236,8 +249,16 @@ export class GameField extends Container {
     return { destroyGroups, flat };
   }
 
+  /**
+   * Spawns new tiles to empty space
+   *
+   * @private
+   * @async
+   * @param {boolean} [prerun=false] if true, runs without animation and delays
+   */
   private async spawnToEmpty(prerun = false) {
     let spawning = false;
+
     for (let i = 0; i < this.fieldHeight; i += 1) {
       for (let u = 0; u < this.fieldWidth; u += 1) {
         const current = this.gameField[i][u];
@@ -256,6 +277,30 @@ export class GameField extends Container {
     return spawning;
   }
 
+  /**
+   * Checks for same tiles in gamefield for horizontaly **or** verticaly
+   *
+   * @private
+   * @param {("h" | "v")} mode horizontaly **or** verticaly
+   * @returns {{}}
+   *
+   * @example
+   * // with inArow = 3
+   * [q][w][e][e][e]
+   * [q][w][e][e][e]
+   * [e][w][t][r][q]
+   * [q][q][e][r][e]
+   * [q][r][e][e][q]
+   *
+   * will result to
+   *
+   * [q][-][-][-][-]
+   * [q][-][-][-][-]
+   * [e][-][t][r][q]
+   * [q][w][e][r][e]
+   * [q][w][e][e][q]
+   *
+   */
   private _checkLines(mode: "h" | "v") {
     // horizontaly
     const destroyGroups: GameLine[] = [];
@@ -279,7 +324,7 @@ export class GameField extends Container {
           if (prevCandidate?.tile === current.tile) {
             candidate.push(current);
           } else {
-            if (candidate.length > 2) {
+            if (candidate.length > this.inArow - 1) {
               destroyGroups.push([...candidate]);
             } else {
               candidate = [current];
@@ -288,9 +333,10 @@ export class GameField extends Container {
         }
 
         if (u === width - 1 || !current) {
-          if (candidate.length > 2) {
+          if (candidate.length > this.inArow - 1) {
             destroyGroups.push([...candidate]);
           }
+
           candidate = [];
         }
       }
@@ -299,6 +345,12 @@ export class GameField extends Container {
     return destroyGroups;
   }
 
+  /**
+   * Repeatably shifts tiles down if possible
+   *
+   * @async
+   * @param {boolean} [prerun=false] if true, runs without animation and delays
+   */
   async gravity(prerun = false) {
     let gravityWorking = false;
 
@@ -327,6 +379,14 @@ export class GameField extends Container {
     return gravityWorking;
   }
 
+  /**
+   * Destroys tiles and notifies listeners
+   *
+   * @private
+   * @async
+   * @param {GameLine[]} destroyGroups what to destroy
+   * @param {boolean} [prerun=false] if true, runs without animation and delays
+   */
   private async destroyLines(destroyGroups: GameLine[], prerun = false) {
     if (destroyGroups.length === 0) {
       return Promise.resolve();
@@ -368,6 +428,12 @@ export class GameField extends Container {
     });
   }
 
+  /**
+   * Game cycle with animation
+   * Constantly tries to find tiles to destroy, calss gravity and spawn new tiles
+   *
+   * @async
+   */
   async gameCycle() {
     const { destroyGroups } = this.checkLines();
 
@@ -400,6 +466,11 @@ export class GameField extends Container {
     });
   }
 
+  /**
+   * Without animation creates gamefield with no lines to be destroyed
+   *
+   * @async
+   */
   async prerun() {
     const { destroyGroups } = this.checkLines();
 
