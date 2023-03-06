@@ -151,8 +151,6 @@ export class Tile extends Container {
     this.dragging = true;
     this.prevZIndex = this.zIndex;
     this.zIndex = 1000;
-
-    // this.scale.set(1.2);
   };
 
   move = (e: Event & { data: InteractionData }) => {
@@ -263,6 +261,5 @@ export class Tile extends Container {
     this.simpleDirection = null;
     this.zIndex = this.prevZIndex;
     this.direction = null;
-    this.scale.set(1);
   }
 }

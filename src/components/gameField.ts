@@ -82,6 +82,14 @@ export class GameField extends Container {
     });
   }
 
+  /**
+   * When swap is avalible and user holds pointer
+   *
+   * @param {string} initiatorId from tile
+   * @param {string} opponentId to tile
+   * @param {number} x current state
+   * @param {number} y current state
+   */
   private swap = (initiatorId: string, opponentId: string, x: number, y: number) => {
     const opponent = this.tilesMap.get(opponentId);
 
@@ -96,6 +104,13 @@ export class GameField extends Container {
     }
   };
 
+  /**
+   * When user passes threshold
+   * Swaps elements with animation and mutates gamefield
+   *
+   * @param {string} initiatorId from tile
+   * @param {string} opponentId to tile
+   */
   private swapComplete = (initiatorId: string, opponentId: string) => {
     const opponent = this.tilesMap.get(opponentId);
     const initiator = this.tilesMap.get(initiatorId);
@@ -138,6 +153,13 @@ export class GameField extends Container {
     this.gameCycle();
   };
 
+  /**
+   * Moves constantly tile down
+   *
+   * @param {string} initiatorId from tile
+   * @param {boolean} [prerun=false] if true, runs without animation and delays
+   * @returns {boolean} if move down is possible
+   */
   private fallDown = (initiatorId: string, prerun = false) => {
     const initiator = this.tilesMap.get(initiatorId);
 
@@ -175,6 +197,12 @@ export class GameField extends Container {
     return true;
   };
 
+  /**
+   * When user releases pointer not passing swap threshold
+   *
+   * @param {string} initiatorId from tile
+   * @param {string} opponentId to tile
+   */
   private swapCancel = (initiatorId: string, opponentId: string) => {
     const opponent = this.tilesMap.get(opponentId);
     const initiator = this.tilesMap.get(initiatorId);

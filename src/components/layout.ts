@@ -55,7 +55,7 @@ export class Layout extends Container {
     this.score.addValue(score);
   }
 
-  start() {
+  public start() {
     const progressBar = this.progressBar;
 
     this.progressTween = gsap.to(
@@ -73,7 +73,7 @@ export class Layout extends Container {
     );
   }
 
-  restart() {
+  public restart() {
     this.gameField.prerun();
     this.start();
   }

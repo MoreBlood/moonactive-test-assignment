@@ -32,7 +32,7 @@ export class ProgressBar extends Container implements AbstractProgressBar {
     return rect;
   }
 
-  setValue(value: number): void {
+  public setValue(value: number): void {
     this.current = value;
     this.resize(this.width);
   }
