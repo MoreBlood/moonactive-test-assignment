@@ -42,8 +42,6 @@ window.onload = async (): Promise<void> => {
 
   document.body.appendChild(app.view);
 
-  resizeCanvas();
-
   const forestTexture = Assets.cache.get("forest");
 
   const effects = new Effects(app);
@@ -61,72 +59,12 @@ window.onload = async (): Promise<void> => {
   app.stage.addChild(packshot);
   app.stage.addChild(effects);
 
-  bg.interactive = true;
-
   layout.gameField.on("scored", (score: number, type: TileType, x: number, y: number) => {
-    effects.emitter.spawnPos.x = x;
-    effects.emitter.spawnPos.y = y;
+    const emitter = effects.emitters[type];
+    emitter.spawnPos.x = x;
+    emitter.spawnPos.y = y;
 
-    // effects.emitter.init(
-    //   upgradeConfig(
-    //     {
-    //       alpha: {
-    //         start: 0.8,
-    //         end: 0.1,
-    //       },
-    //       scale: {
-    //         start: 0.1,
-    //         end: 0,
-    //         minimumScaleMultiplier: 1,
-    //       },
-    //       color: {
-    //         start: "#fb1010",
-    //         end: "#f5b830",
-    //       },
-    //       speed: {
-    //         start: 200,
-    //         end: 100,
-    //         minimumSpeedMultiplier: 1,
-    //       },
-    //       acceleration: {
-    //         x: 0,
-    //         y: 0,
-    //       },
-    //       maxSpeed: 0,
-    //       startRotation: {
-    //         min: 0,
-    //         max: 360,
-    //       },
-    //       noRotation: false,
-    //       rotationSpeed: {
-    //         min: 0,
-    //         max: 0,
-    //       },
-    //       lifetime: {
-    //         min: 0.5,
-    //         max: 0.5,
-    //       },
-    //       blendMode: "normal",
-    //       frequency: 0.008,
-    //       emitterLifetime: 0.31,
-    //       particlesPerWave: 10,
-    //       maxParticles: 1000,
-    //       pos: {
-    //         x: 0,
-    //         y: 0,
-    //       },
-    //       addAtBack: false,
-    //       spawnType: "circle",
-    //       spawnCircle: {
-    //         x: 0,
-    //         y: 0,
-    //         r: 10,
-    //       },
-    //     },
-    //     Assets.get(type),
-    //   ),
-    // );
-    effects.emitter.emitNow();
+    emitter.emitNow();
   });
 
   modal.show();
@@ -151,6 +89,8 @@ window.onload = async (): Promise<void> => {
   packshot.on("hidden", () => {
     layout.restart();
   });
+
+  resizeCanvas();
 
   app.stage.interactive = true;
 };

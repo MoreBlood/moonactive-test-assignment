@@ -16,17 +16,26 @@ import {
 import { TileType } from "./tile";
 
 export class Effects extends Sprite {
-  emitter: Emitter;
+  emitters: { [key in TileType]: Emitter } = {} as any;
 
   constructor(private readonly app: Pick<Application, "renderer" | "screen">) {
     super();
 
-    // Create a new emitter
-    // note: if importing library like "import * as particles from '@pixi/particle-emitter'"
-    // or "const particles = require('@pixi/particle-emitter')", the PIXI namespace will
-    // not be modified, and may not exist - use "new particles.Emitter()", or whatever
-    // your imported namespace is
-    this.emitter = new Emitter(
+    (Object.keys(TileType) as TileType[]).forEach((type) => this.generateEmitter(type));
+
+    app.renderer.addListener("resize", this.resize);
+  }
+
+  private generateEmitter(type: TileType) {
+    const color: { [key in TileType]: number } = {
+      tileGreen: 0x98cb4a,
+      tileOrange: 0xe86a17,
+      tilePink: 0xff99cc,
+      tileRed: 0xc83f3e,
+      tileYellow: 0xfed732,
+    };
+
+    const emitter = new Emitter(
       // The PIXI.Container to put the emitter in
       // if using blend modes, it's important to put this
       // on top of a bitmap, and not use the root stage Container
@@ -40,17 +49,17 @@ export class Effects extends Sprite {
             end: 0.1,
           },
           scale: {
-            start: 0.1,
+            start: 0.3,
             end: 0,
             minimumScaleMultiplier: 1,
           },
           color: {
-            start: "#fb1010",
-            end: "#f5b830",
+            start: color[type].toString(16).replace("0x", "#"),
+            end: color[type].toString(16).replace("0x", "#"),
           },
           speed: {
-            start: 200,
-            end: 100,
+            start: 300,
+            end: 0,
             minimumSpeedMultiplier: 1,
           },
           acceleration: {
@@ -65,10 +74,10 @@ export class Effects extends Sprite {
           noRotation: false,
           rotationSpeed: {
             min: 0,
-            max: 0,
+            max: 10,
           },
           lifetime: {
-            min: 0.5,
+            min: 0.2,
             max: 0.5,
           },
           blendMode: "normal",
@@ -88,24 +97,25 @@ export class Effects extends Sprite {
             r: 10,
           },
         },
-        Object.keys(TileType).map((tile) => Assets.get(tile)),
+        Assets.get(type),
       ),
     );
 
-    // this.addChild(this.emitter);
+    emitter.emit = false;
+    emitter.autoUpdate = true;
 
-    this.emitter.emit = false;
-    this.emitter.autoUpdate = true;
-
-    this.interactive = true;
-
-    app.renderer.addListener("resize", this.resize);
+    this.emitters[type] = emitter;
   }
 
   private resize = (width: number, height: number) => {
     // this will position it in center and scale verticaly to fit viewport
-    this.width = width;
-    this.height = height;
+    this.getLocalBounds = function getLocalBounds() {
+      const bounds = new Rectangle();
+      bounds.width = width;
+      bounds.height = height;
+
+      return bounds;
+    };
     // this.hitArea = new Rectangle(0, 0, width, height);
   };
 }
