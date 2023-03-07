@@ -1,4 +1,4 @@
-import { Application, Loader, Assets, LoadAsset } from "./pixi";
+import { Application, Loader, Assets, LoadAsset, InteractionData, upgradeConfig } from "./pixi";
 import { HorizontalyTiledBackground } from "./components/background";
 import FontFaceObserver from "fontfaceobserver";
 import { Modal } from "./components/modal";
@@ -12,6 +12,9 @@ import tilePink from "../assets/tiles/tilePink.png";
 import tileRed from "../assets/tiles/tileRed.png";
 import tileYellow from "../assets/tiles/tileYellow.png";
 import forest from "../assets/bg/forest.jpg";
+import particle from "../assets/particle.png";
+import { Effects } from "./components/effects";
+import { TileType } from "./components/tile";
 
 // TODO
 // [x] scalable text
@@ -22,7 +25,7 @@ declare const VERSION: string;
 const gameWidth = window.innerWidth;
 const gameHeight = window.innerHeight;
 
-const assets = { BackTile, tileBlue, tileGreen, tileOrange, tilePink, tileRed, tileYellow, forest };
+const assets = { BackTile, tileBlue, tileGreen, tileOrange, tilePink, tileRed, tileYellow, forest, particle };
 
 const app = new Application({
   width: gameWidth,
@@ -43,6 +46,8 @@ window.onload = async (): Promise<void> => {
 
   const forestTexture = Assets.cache.get("forest");
 
+  const effects = new Effects(app);
+
   const bg = new HorizontalyTiledBackground(app, forestTexture);
   app.stage.addChild(bg);
 
@@ -54,6 +59,75 @@ window.onload = async (): Promise<void> => {
   app.stage.addChild(layout);
   app.stage.addChild(modal);
   app.stage.addChild(packshot);
+  app.stage.addChild(effects);
+
+  bg.interactive = true;
+
+  layout.gameField.on("scored", (score: number, type: TileType, x: number, y: number) => {
+    effects.emitter.spawnPos.x = x;
+    effects.emitter.spawnPos.y = y;
+
+    // effects.emitter.init(
+    //   upgradeConfig(
+    //     {
+    //       alpha: {
+    //         start: 0.8,
+    //         end: 0.1,
+    //       },
+    //       scale: {
+    //         start: 0.1,
+    //         end: 0,
+    //         minimumScaleMultiplier: 1,
+    //       },
+    //       color: {
+    //         start: "#fb1010",
+    //         end: "#f5b830",
+    //       },
+    //       speed: {
+    //         start: 200,
+    //         end: 100,
+    //         minimumSpeedMultiplier: 1,
+    //       },
+    //       acceleration: {
+    //         x: 0,
+    //         y: 0,
+    //       },
+    //       maxSpeed: 0,
+    //       startRotation: {
+    //         min: 0,
+    //         max: 360,
+    //       },
+    //       noRotation: false,
+    //       rotationSpeed: {
+    //         min: 0,
+    //         max: 0,
+    //       },
+    //       lifetime: {
+    //         min: 0.5,
+    //         max: 0.5,
+    //       },
+    //       blendMode: "normal",
+    //       frequency: 0.008,
+    //       emitterLifetime: 0.31,
+    //       particlesPerWave: 10,
+    //       maxParticles: 1000,
+    //       pos: {
+    //         x: 0,
+    //         y: 0,
+    //       },
+    //       addAtBack: false,
+    //       spawnType: "circle",
+    //       spawnCircle: {
+    //         x: 0,
+    //         y: 0,
+    //         r: 10,
+    //       },
+    //     },
+    //     Assets.get(type),
+    //   ),
+    // );
+    effects.emitter.emitNow();
+  });
 
   modal.show();
 

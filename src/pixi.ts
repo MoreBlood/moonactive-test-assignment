@@ -66,6 +66,8 @@ export * from "@pixi/text";
 
 export * from "@pixi/interaction";
 
+export * from "@pixi/particle-emitter";
+
 export declare interface IHitArea {
   contains(x: number, y: number): boolean;
 }
