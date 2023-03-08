@@ -1,4 +1,4 @@
-import { Application, Loader, Assets, LoadAsset, InteractionData, upgradeConfig } from "./pixi";
+import { Application, Assets, LoadAsset } from "./pixi";
 import { HorizontalyTiledBackground } from "./components/background";
 import FontFaceObserver from "fontfaceobserver";
 import { Modal } from "./components/modal";
@@ -61,8 +61,11 @@ window.onload = async (): Promise<void> => {
 
   layout.gameField.on("scored", (score: number, type: TileType, x: number, y: number) => {
     const emitter = effects.emitters[type];
-    emitter.spawnPos.x = x;
-    emitter.spawnPos.y = y;
+
+    const local = effects.toLocal({ x, y });
+
+    emitter.spawnPos.x = local.x;
+    emitter.spawnPos.y = local.y;
 
     emitter.emitNow();
   });

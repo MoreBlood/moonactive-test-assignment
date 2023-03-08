@@ -1,24 +1,11 @@
-import {
-  Container,
-  IDestroyOptions,
-  Sprite,
-  Point,
-  InteractionData,
-  Assets,
-  Emitter,
-  Texture,
-  Application,
-  Renderer,
-  Ticker,
-  upgradeConfig,
-  Rectangle,
-} from "../pixi";
+import { colorNumberToHex } from "../helpers/colorNumberToString";
+import { Sprite, Assets, Emitter, upgradeConfig, Application } from "../pixi";
 import { TileType } from "./tile";
 
 export class Effects extends Sprite {
   emitters: { [key in TileType]: Emitter } = {} as any;
 
-  constructor(private readonly app: Pick<Application, "renderer" | "screen">) {
+  constructor(app: Pick<Application, "renderer" | "screen">) {
     super();
 
     (Object.keys(TileType) as TileType[]).forEach((type) => this.generateEmitter(type));
@@ -49,17 +36,17 @@ export class Effects extends Sprite {
             end: 0.1,
           },
           scale: {
-            start: 0.3,
+            start: 0.1,
             end: 0,
             minimumScaleMultiplier: 1,
           },
           color: {
-            start: color[type].toString(16).replace("0x", "#"),
-            end: color[type].toString(16).replace("0x", "#"),
+            start: colorNumberToHex(color[type]),
+            end: colorNumberToHex(color[type]),
           },
           speed: {
-            start: 300,
-            end: 0,
+            start: 200,
+            end: 50,
             minimumSpeedMultiplier: 1,
           },
           acceleration: {
@@ -78,23 +65,24 @@ export class Effects extends Sprite {
           },
           lifetime: {
             min: 0.2,
-            max: 0.5,
+            max: 0.6,
           },
           blendMode: "normal",
           frequency: 0.008,
           emitterLifetime: 0.31,
-          particlesPerWave: 10,
+          particlesPerWave: 50,
           maxParticles: 1000,
           pos: {
             x: 0,
             y: 0,
           },
           addAtBack: false,
-          spawnType: "circle",
-          spawnCircle: {
-            x: 0,
-            y: 0,
-            r: 10,
+          spawnType: "rect",
+          spawnRect: {
+            x: -25,
+            y: -25,
+            w: 50,
+            h: 50,
           },
         },
         Assets.get(type),
@@ -108,14 +96,14 @@ export class Effects extends Sprite {
   }
 
   private resize = (width: number, height: number) => {
-    // this will position it in center and scale verticaly to fit viewport
-    this.getLocalBounds = function getLocalBounds() {
-      const bounds = new Rectangle();
-      bounds.width = width;
-      bounds.height = height;
+    let scale = 0;
 
-      return bounds;
-    };
-    // this.hitArea = new Rectangle(0, 0, width, height);
+    if (height > width) {
+      scale = width / 400;
+    } else {
+      scale = height / 400;
+    }
+
+    this.scale.set(scale);
   };
 }
