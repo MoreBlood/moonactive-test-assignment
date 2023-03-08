@@ -12,7 +12,6 @@ import tilePink from "../assets/tiles/tilePink.png";
 import tileRed from "../assets/tiles/tileRed.png";
 import tileYellow from "../assets/tiles/tileYellow.png";
 import forest from "../assets/bg/forest.jpg";
-import particle from "../assets/particle.png";
 import { Effects } from "./components/effects";
 import { TileType } from "./components/tile";
 
@@ -25,7 +24,7 @@ declare const VERSION: string;
 const gameWidth = window.innerWidth;
 const gameHeight = window.innerHeight;
 
-const assets = { BackTile, tileBlue, tileGreen, tileOrange, tilePink, tileRed, tileYellow, forest, particle };
+const assets = { BackTile, tileBlue, tileGreen, tileOrange, tilePink, tileRed, tileYellow, forest };
 
 const app = new Application({
   width: gameWidth,

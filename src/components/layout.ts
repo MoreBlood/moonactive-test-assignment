@@ -68,7 +68,7 @@ export class Layout extends Container {
           this.emit("end-time");
           this.gameField.releaseTiles();
         },
-        duration: 1000,
+        duration: 10,
       },
     );
   }
