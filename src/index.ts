@@ -1,4 +1,4 @@
-import { Application, Loader, Assets, LoadAsset } from "./pixi";
+import { Application, Assets, LoadAsset } from "./pixi";
 import { HorizontalyTiledBackground } from "./components/background";
 import FontFaceObserver from "fontfaceobserver";
 import { Modal } from "./components/modal";
@@ -12,6 +12,8 @@ import tilePink from "../assets/tiles/tilePink.png";
 import tileRed from "../assets/tiles/tileRed.png";
 import tileYellow from "../assets/tiles/tileYellow.png";
 import forest from "../assets/bg/forest.jpg";
+import { Effects } from "./components/effects";
+import { TileType } from "./components/tile";
 
 // TODO
 // [x] scalable text
@@ -39,9 +41,9 @@ window.onload = async (): Promise<void> => {
 
   document.body.appendChild(app.view);
 
-  resizeCanvas();
-
   const forestTexture = Assets.cache.get("forest");
+
+  const effects = new Effects(app);
 
   const bg = new HorizontalyTiledBackground(app, forestTexture);
   app.stage.addChild(bg);
@@ -54,6 +56,18 @@ window.onload = async (): Promise<void> => {
   app.stage.addChild(layout);
   app.stage.addChild(modal);
   app.stage.addChild(packshot);
+  app.stage.addChild(effects);
+
+  layout.gameField.on("scored", (score: number, type: TileType, x: number, y: number) => {
+    const emitter = effects.emitters[type];
+
+    const local = effects.toLocal({ x, y });
+
+    emitter.spawnPos.x = local.x;
+    emitter.spawnPos.y = local.y;
+
+    emitter.emitNow();
+  });
 
   modal.show();
 
@@ -77,6 +91,8 @@ window.onload = async (): Promise<void> => {
   packshot.on("hidden", () => {
     layout.restart();
   });
+
+  resizeCanvas();
 
   app.stage.interactive = true;
 };

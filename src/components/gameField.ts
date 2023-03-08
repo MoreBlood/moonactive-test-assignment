@@ -436,9 +436,16 @@ export class GameField extends Container {
               alpha: 0,
               duration: 0.5,
               onComplete: () => {
-                tile.tile.destroy();
+                const bounds = tile.tile.getBounds();
 
-                this.emit("scored", 1);
+                this.emit(
+                  "scored",
+                  1,
+                  tile.tile.type,
+                  tile.tile.toGlobal(new Point()).x + bounds.width / 2,
+                  tile.tile.toGlobal(new Point()).y + bounds.height / 2,
+                );
+                tile.tile.destroy();
 
                 resolve();
               },
