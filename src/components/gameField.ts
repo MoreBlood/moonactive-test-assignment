@@ -352,14 +352,19 @@ export class GameField extends Container {
           if (prevCandidate?.tile === current.tile) {
             candidate.push(current);
           } else {
+            // breaking chain
             if (candidate.length > this.inArow - 1) {
               destroyGroups.push([...candidate]);
+              candidate = [];
             } else {
               candidate = [current];
             }
+
+            continue;
           }
         }
 
+        // last check
         if (u === width - 1 || !current) {
           if (candidate.length > this.inArow - 1) {
             destroyGroups.push([...candidate]);
