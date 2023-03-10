@@ -2,6 +2,7 @@ import { Assets, Point, Sprite } from "../pixi";
 import { Container } from "../pixi";
 import { TileModel } from "../model/TileModel";
 import gsap from "gsap";
+import { Settings } from "../config";
 
 export enum TileViewEvents {
   tileDestroyed = "tileDestroyed",
@@ -45,7 +46,7 @@ export class TileView extends Container {
   public destroyTile() {
     gsap.to(this, {
       alpha: 0,
-      duration: 0.5,
+      duration: Settings.animations.destroy,
       onComplete: () => {
         const bounds = this.getBounds();
 

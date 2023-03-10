@@ -1,4 +1,5 @@
 import gsap from "gsap";
+import { Settings } from "../config";
 import { TileDirections, TileModel } from "../model/TileModel";
 import { EventEmitter, InteractionData, Point } from "../pixi";
 import { TileView, TileViewEvents } from "../view/TileView";
@@ -64,7 +65,7 @@ export class TileController extends EventEmitter {
 
   translate(point: Point, prerun = false) {
     gsap.killTweensOf(this.tileView.position);
-    gsap.to(this.tileView.position, { x: point.x, y: point.y, duration: prerun ? 0 : 0.25 });
+    gsap.to(this.tileView.position, { x: point.x, y: point.y, duration: prerun ? 0 : Settings.animations.translate });
 
     this.startPosition = point;
   }
@@ -74,14 +75,17 @@ export class TileController extends EventEmitter {
     gsap.to(this.tileView.position, {
       x: this.startPosition?.x,
       y: this.startPosition?.y,
-      duration: prerun ? 0 : 0.25,
+      duration: prerun ? 0 : Settings.animations.translate,
     });
   }
 
   spawnAnimation(prerun = false) {
     gsap.killTweensOf(this.tileView.position);
-    gsap.from(this.tileView, { alpha: 0, duration: prerun ? 0 : 0.25 });
-    gsap.from(this.tileView.position, { y: `-=${this.tileView.height}`, duration: prerun ? 0 : 0.25 });
+    gsap.from(this.tileView, { alpha: 0, duration: prerun ? 0 : Settings.animations.translate });
+    gsap.from(this.tileView.position, {
+      y: `-=${this.tileView.height}`,
+      duration: prerun ? 0 : Settings.animations.translate,
+    });
   }
 
   down = (e: Event & { data: InteractionData }) => {
@@ -150,7 +154,7 @@ export class TileController extends EventEmitter {
         const neighbour = this.tileModel.getNeighbourTileBy(this.direction);
 
         if (this.simpleDirection === "h" && neighbour) {
-          if (Math.abs(xMovement) > this.tileView.width * 0.5) {
+          if (Math.abs(xMovement) > this.tileView.width * Settings.gamefield.dragThreshold) {
             this.emit(TileControllerEvents["swap-complete"], this.tileModel.id, neighbour.id, xMovement, 0);
             this.out();
 
@@ -159,7 +163,7 @@ export class TileController extends EventEmitter {
 
           this.emit("swap", this.tileModel.id, neighbour.id, xMovement, 0);
         } else if (this.simpleDirection === "v" && neighbour) {
-          if (Math.abs(yMovement) > this.tileView.height * 0.5) {
+          if (Math.abs(yMovement) > this.tileView.height * Settings.gamefield.dragThreshold) {
             this.emit(TileControllerEvents["swap-complete"], this.tileModel.id, neighbour.id, xMovement, 0);
             this.out();
 

@@ -3,6 +3,7 @@ import { TileDirections } from "../components/tile";
 import sleep from "../helpers/tweenedSleep";
 import { GameModel } from "../model/GameModel";
 import { EventEmitter } from "../pixi";
+import { Settings } from "../config";
 
 export enum GameServiceEvents {
   "tile-destroyed" = "tile-destroyed",
@@ -125,7 +126,7 @@ export class GameService extends EventEmitter {
     });
 
     if (!prerun) {
-      await sleep(0.5);
+      await sleep(Settings.animations.destroy);
     }
   }
 

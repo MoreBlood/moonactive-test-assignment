@@ -14,6 +14,7 @@ import tileYellow from "../assets/tiles/tileYellow.png";
 import forest from "../assets/bg/forest.jpg";
 import { Effects } from "./components/effects";
 import { TileType } from "./components/tile";
+import { Settings } from "./config";
 
 // TODO
 // [x] scalable text
@@ -78,8 +79,13 @@ export class Game extends Application {
 
     // layout has gamefiled, total score and progress bar
     const layout = new Layout(this);
-    const packshot = new PackshotModal(this, "NICE\nWORK", "FAIL!", "TRY AGAIN");
-    const modal = new Modal(this, "MERGE ALL SIMILAR ITEMS BEFORE TIME RUNS OUT ", "START");
+    const packshot = new PackshotModal(
+      this,
+      Settings.text.packshotTitle,
+      Settings.text.packshotFailTitle,
+      Settings.text.packshotButton,
+    );
+    const modal = new Modal(this, Settings.text.introTitle, Settings.text.introButton);
 
     this.stage.addChild(layout);
     this.stage.addChild(modal);
@@ -101,7 +107,7 @@ export class Game extends Application {
 
     // on time limit
     layout.on("end-time", () => {
-      if (layout.score.current > 0) {
+      if (layout.score.current >= Settings.gamefield.needToScore) {
         packshot.changeType(false);
       } else {
         packshot.changeType(true);

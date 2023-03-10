@@ -24,7 +24,7 @@ export class GameController extends EventEmitter {
   constructor() {
     super();
 
-    this.gameModel = new GameModel(Settings.gamefield.width, Settings.gamefield.height);
+    this.gameModel = new GameModel(Settings.gamefield.width, Settings.gamefield.height, Settings.gamefield.inArow);
     this.gameView = new GameView(this.gameModel);
 
     this.gameView.tileViews.forEach((tileView) => {

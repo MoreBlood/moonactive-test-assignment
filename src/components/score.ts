@@ -11,7 +11,7 @@ export class ScoreBar extends Container implements AbstractScoreBar {
 
   private arrow: Graphics;
 
-  constructor(public current: number = 0) {
+  constructor(public current: number = 0, text: string) {
     super();
 
     const totalStyle = new TextStyle({
@@ -33,7 +33,7 @@ export class ScoreBar extends Container implements AbstractScoreBar {
       fontSize: 10,
     });
 
-    this.total = new ScalableText("TOTAL", totalStyle);
+    this.total = new ScalableText(text, totalStyle);
     this.score = new ScalableText(` ${this.current} `, scoreStyle);
 
     this.background = new Graphics();

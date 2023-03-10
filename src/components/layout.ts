@@ -1,4 +1,5 @@
 import gsap from "gsap";
+import { Settings } from "../config";
 import { GameController, GameControllerEvents } from "../controller/GameController";
 import { Application, Container } from "../pixi";
 import { AbstractProgressBar } from "./abstract/abstractProgressBar";
@@ -25,7 +26,7 @@ export class Layout extends Container {
 
     this.sortableChildren = true;
 
-    this.score = new ScoreBar(0);
+    this.score = new ScoreBar(0, Settings.text.total);
     this.score.zIndex = 2;
 
     this.progressBar = new ProgressBar(10, 10);
@@ -70,7 +71,7 @@ export class Layout extends Container {
           this.emit("end-time");
           this.gameField.releaseTiles();
         },
-        duration: 10,
+        duration: Settings.gamefield.duration,
       },
     );
   }
