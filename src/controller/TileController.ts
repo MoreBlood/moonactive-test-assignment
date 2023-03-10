@@ -20,8 +20,6 @@ export class TileController extends EventEmitter {
 
   private prevZIndex = 0;
 
-  private threshold = 30; // TODO settings
-
   private simpleDirection: "v" | "h" | null = null;
 
   private direction: TileDirections | null = null;
@@ -139,8 +137,8 @@ export class TileController extends EventEmitter {
       this.tileView.position.x = parentPosition.x - this.draggingPosition.x;
       this.tileView.position.y = parentPosition.y - this.draggingPosition.y;
 
-      const thresholdPassedX = Math.abs(xMovement) > this.threshold;
-      const thresholdPassedY = Math.abs(yMovement) > this.threshold;
+      const thresholdPassedX = Math.abs(xMovement) > Settings.gamefield.dragStartThreshold;
+      const thresholdPassedY = Math.abs(yMovement) > Settings.gamefield.dragStartThreshold;
 
       if ((thresholdPassedX && !this.simpleDirection) || this.simpleDirection === "h") {
         this.simpleDirection = "h";
@@ -154,7 +152,7 @@ export class TileController extends EventEmitter {
         const neighbour = this.tileModel.getNeighbourTileBy(this.direction);
 
         if (this.simpleDirection === "h" && neighbour) {
-          if (Math.abs(xMovement) > this.tileView.width * Settings.gamefield.dragThreshold) {
+          if (Math.abs(xMovement) > this.tileView.width * Settings.gamefield.dragCompletedThreshold) {
             this.emit(TileControllerEvents["swap-complete"], this.tileModel.id, neighbour.id, xMovement, 0);
             this.out();
 
@@ -163,7 +161,7 @@ export class TileController extends EventEmitter {
 
           this.emit("swap", this.tileModel.id, neighbour.id, xMovement, 0);
         } else if (this.simpleDirection === "v" && neighbour) {
-          if (Math.abs(yMovement) > this.tileView.height * Settings.gamefield.dragThreshold) {
+          if (Math.abs(yMovement) > this.tileView.height * Settings.gamefield.dragCompletedThreshold) {
             this.emit(TileControllerEvents["swap-complete"], this.tileModel.id, neighbour.id, xMovement, 0);
             this.out();
 

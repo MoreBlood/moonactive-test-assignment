@@ -17,7 +17,8 @@ export class Settings {
   public static gamefield = {
     width: 5,
     height: 5,
-    dragThreshold: 0.5,
+    dragCompletedThreshold: 0.5,
+    dragStartThreshold: 30,
     inArow: 3,
     duration: 10,
     needToScore: 1,
