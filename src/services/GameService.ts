@@ -1,5 +1,5 @@
 import { GameLine } from "../model/GameModel";
-import { TileDirections } from "../components/tile";
+import { TileDirections } from "../model/TileModel";
 import sleep from "../helpers/tweenedSleep";
 import { GameModel } from "../model/GameModel";
 import { EventEmitter } from "../pixi";

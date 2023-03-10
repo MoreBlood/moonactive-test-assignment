@@ -1,8 +1,7 @@
 import { Container, Point } from "../pixi";
 import { GameModel } from "../model/GameModel";
 import { TileView } from "./TileView";
-import { TileModel } from "../model/TileModel";
-import { TileType } from "../components/tile";
+import { TileModel, TileType } from "../model/TileModel";
 
 export class GameView extends Container {
   initialWidth = 0;

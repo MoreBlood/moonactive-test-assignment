@@ -1,6 +1,6 @@
 import { colorNumberToHex } from "../helpers/colorNumberToString";
 import { Sprite, Assets, Emitter, upgradeConfig, Application } from "../pixi";
-import { TileType } from "./tile";
+import { TileType } from "../model/TileModel";
 
 export class Effects extends Sprite {
   emitters: { [key in TileType]: Emitter } = {} as any;
