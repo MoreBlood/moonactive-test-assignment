@@ -36,6 +36,8 @@ export * from "@pixi/constants";
 
 export * from "@pixi/math";
 
+export * from "@pixi/utils";
+
 export * from "@pixi/runner";
 
 export * from "@pixi/settings";

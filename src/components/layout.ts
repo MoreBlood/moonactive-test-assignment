@@ -1,4 +1,5 @@
 import gsap from "gsap";
+import { GameController, GameControllerEvents } from "../controller/GameController";
 import { Application, Container } from "../pixi";
 import { AbstractProgressBar } from "./abstract/abstractProgressBar";
 import { AbstractScoreBar } from "./abstract/abstractScoresBar";
@@ -15,7 +16,7 @@ export class Layout extends Container {
 
   public score: AbstractScoreBar;
 
-  public gameField: GameField;
+  public gameField: GameController;
 
   private progressTween?: gsap.core.Tween;
 
@@ -29,15 +30,16 @@ export class Layout extends Container {
 
     this.progressBar = new ProgressBar(10, 10);
 
-    this.gameField = new GameField(5, 5);
+    this.gameField = new GameController();
+    this.gameField.prerun();
 
     this.addChild(this.score);
-    this.addChild(this.gameField);
+    this.addChild(this.gameField.gameView);
     this.addChild(this.progressBar);
 
     this.resize(app.renderer.width, app.renderer.height);
 
-    this.gameField.on("proccessing", (done) => this.updateInProgress(done));
+    this.gameField.on(GameControllerEvents.proccessing, (done) => this.updateInProgress(done));
     this.gameField.on("scored", (score) => this.scored(score));
 
     app.renderer.addListener("resize", this.resize);
@@ -55,7 +57,7 @@ export class Layout extends Container {
     this.score.addValue(score);
   }
 
-  public start() {
+  public async start() {
     const progressBar = this.progressBar;
 
     this.progressTween = gsap.to(
@@ -73,8 +75,7 @@ export class Layout extends Container {
     );
   }
 
-  public restart() {
-    this.gameField.prerun();
+  public async restart() {
     this.start();
   }
 
@@ -86,8 +87,8 @@ export class Layout extends Container {
       this.score.resize(this.initialWidth);
     }
 
-    this.gameField.position.y = this.score.height + 50;
-    this.progressBar.position.y = this.gameField.height + this.gameField.position.y + 70;
+    this.gameField.gameView.position.y = this.score.height + 50;
+    this.progressBar.position.y = this.gameField.gameView.height + this.gameField.gameView.position.y + 70;
 
     if (this.initialHeight === 0) {
       this.initialHeight = this.height;

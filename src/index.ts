@@ -24,98 +24,106 @@ declare const VERSION: string;
 const gameWidth = window.innerWidth;
 const gameHeight = window.innerHeight;
 
-const assets = { BackTile, tileBlue, tileGreen, tileOrange, tilePink, tileRed, tileYellow, forest };
+export class Game extends Application {
+  static assets = { BackTile, tileBlue, tileGreen, tileOrange, tilePink, tileRed, tileYellow, forest };
 
-const app = new Application({
-  width: gameWidth,
-  height: gameHeight,
-  backgroundColor: 0xd3d3d3,
-  antialias: true,
-  autoDensity: true,
-  powerPreference: "high-performance",
-});
+  constructor() {
+    super({
+      width: gameWidth,
+      height: gameHeight,
+      backgroundColor: 0xd3d3d3,
+      antialias: true,
+      autoDensity: true,
+      powerPreference: "high-performance",
+    });
 
-window.onload = async (): Promise<void> => {
-  await loadGameAssets();
-  await loadFonts();
+    this.init();
+  }
 
-  document.body.appendChild(app.view);
+  async loadFonts() {
+    const observer = new FontFaceObserver("Chango-Regular");
 
-  const forestTexture = Assets.cache.get("forest");
+    await observer.load();
+  }
 
-  const effects = new Effects(app);
+  async loadGameAssets(): Promise<void> {
+    const keys = Object.keys(Game.assets) as (keyof typeof Game.assets)[];
 
-  const bg = new HorizontalyTiledBackground(app, forestTexture);
-  app.stage.addChild(bg);
+    await Assets.load(keys.map((key): LoadAsset => ({ alias: [key], src: Game.assets[key] })));
+  }
 
-  // layout has gamefiled, total score and progress bar
-  const layout = new Layout(app);
-  const packshot = new PackshotModal(app, "NICE\nWORK", "FAIL!", "TRY AGAIN");
-  const modal = new Modal(app, "MERGE ALL SIMILAR ITEMS BEFORE TIME RUNS OUT ", "START");
+  resizeCanvas(): void {
+    const resize = () => {
+      this.renderer.resize(window.innerWidth, window.innerHeight);
+      this.renderer.emit("resize", window.innerWidth, window.innerHeight);
+    };
 
-  app.stage.addChild(layout);
-  app.stage.addChild(modal);
-  app.stage.addChild(packshot);
-  app.stage.addChild(effects);
+    resize();
 
-  layout.gameField.on("scored", (score: number, type: TileType, x: number, y: number) => {
-    const emitter = effects.emitters[type];
+    window.addEventListener("resize", resize);
+  }
 
-    const local = effects.toLocal({ x, y });
+  async init() {
+    await this.loadGameAssets();
+    await this.loadFonts();
 
-    emitter.spawnPos.x = local.x;
-    emitter.spawnPos.y = local.y;
+    document.body.appendChild(this.view);
 
-    emitter.emitNow();
-  });
+    const forestTexture = Assets.cache.get("forest");
 
-  modal.show();
+    const effects = new Effects(this);
 
-  // on time limit
-  layout.on("end-time", () => {
-    if (layout.score.current > 0) {
-      packshot.changeType(false);
-    } else {
-      packshot.changeType(true);
-    }
+    const bg = new HorizontalyTiledBackground(this, forestTexture);
+    this.stage.addChild(bg);
 
-    packshot.show();
-  });
+    // layout has gamefiled, total score and progress bar
+    const layout = new Layout(this);
+    const packshot = new PackshotModal(this, "NICE\nWORK", "FAIL!", "TRY AGAIN");
+    const modal = new Modal(this, "MERGE ALL SIMILAR ITEMS BEFORE TIME RUNS OUT ", "START");
 
-  // on intro modal hidden
-  modal.on("hidden", () => {
-    layout.start();
-  });
+    this.stage.addChild(layout);
+    this.stage.addChild(modal);
+    this.stage.addChild(packshot);
+    this.stage.addChild(effects);
 
-  // on restart
-  packshot.on("hidden", () => {
-    layout.restart();
-  });
+    layout.gameField.on("scored", (score: number, type: TileType, x: number, y: number) => {
+      const emitter = effects.emitters[type];
 
-  resizeCanvas();
+      const local = effects.toLocal({ x, y });
 
-  app.stage.interactive = true;
-};
+      emitter.spawnPos.x = local.x;
+      emitter.spawnPos.y = local.y;
 
-async function loadFonts() {
-  const observer = new FontFaceObserver("Chango-Regular");
+      emitter.emitNow();
+    });
 
-  await observer.load();
+    modal.show();
+
+    // on time limit
+    layout.on("end-time", () => {
+      if (layout.score.current > 0) {
+        packshot.changeType(false);
+      } else {
+        packshot.changeType(true);
+      }
+
+      packshot.show();
+    });
+
+    // on intro modal hidden
+    modal.on("hidden", () => {
+      layout.start();
+    });
+
+    // on restart
+    packshot.on("hidden", () => {
+      layout.restart();
+    });
+
+    this.resizeCanvas();
+
+    this.stage.interactive = true;
+  }
 }
 
-async function loadGameAssets(): Promise<void> {
-  const keys = Object.keys(assets) as (keyof typeof assets)[];
-
-  await Assets.load(keys.map((key): LoadAsset => ({ alias: [key], src: assets[key] })));
-}
-
-function resizeCanvas(): void {
-  const resize = () => {
-    app.renderer.resize(window.innerWidth, window.innerHeight);
-    app.renderer.emit("resize", window.innerWidth, window.innerHeight);
-  };
-
-  resize();
-
-  window.addEventListener("resize", resize);
-}
+new Game();
